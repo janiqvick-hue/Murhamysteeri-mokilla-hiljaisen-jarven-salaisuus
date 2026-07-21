@@ -1,0 +1,6 @@
+{
+  "name": "Murhamysteeri mökillä – Hiljaisen järven salaisuus",
+  "description": "Tutki mökkialuetta, kuulustele epäiltyjä ja ratkaise Antin murha tässä jännittävässä selainpohjaisessa rikosmysteeripelissä.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
