@@ -427,7 +427,7 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
   // Safe image path resolver
   const getClueImage = (clueId: string): string | null => {
     const images: Record<string, string> = {
-      elinan_aani_tallenteella: '/images/ui/elinan_aani_tallenteella.jpg',
+      elinan_aani_tallenteella: '/images/ui/elinan_aani_tallenteella.png',
       kangas_antin_kadessa: '/images/ui/kangas_antin_kadessa.jpg',
       antin_puhelin: '/images/ui/antin_puhelin.jpg',
       tekstiviesti_lauralle: '/images/ui/tekstiviesti_lauralle.jpg',

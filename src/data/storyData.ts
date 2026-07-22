@@ -513,7 +513,8 @@ export const CLUES: Clue[] = [
     evidenceValueStars: 5,
     forensicAnalysis: 'Äänitallenne on puhdistettu taustamelusta rikosteknisellä analyysiohjelmistolla. Tallenteelta tunnistetaan selvästi Elina Koskisen ääni sekä Antin kanssa käyty sanallinen riita juuri ennen arvioitua kuolinaikaa. Tallenteen lopussa kuuluu voimakas isku ja rikkoutuvan lasin ääni, jotka vastaavat rikospaikalta löytynyttä rikkoutunutta metallilyhtyä. Tallenne osoittaa, että Elinan kertomus tapahtumien kulusta ei pidä paikkaansa.',
     investigativeSignificance: 'Tämä johtolanka kumoaa Elinan alibin. Äänitallenne todistaa hänen olleen rikospaikalla juuri ennen murhaa. Tallenne muodostaa yhden tutkinnan vahvimmista todisteista ja yhdistyy talousrikoksia koskeviin asiakirjoihin sekä muihin fyysisiin todisteisiin.',
-    connectedClues: ['saran_tallennin', 'auton_avaimet', 'tilisiirto_elinalle', 'kirjanpitopaperit']
+    connectedClues: ['saran_tallennin', 'auton_avaimet', 'tilisiirto_elinalle', 'kirjanpitopaperit'],
+    imageUrl: '/images/ui/elinan_aani_tallenteella.png'
   },
   {
     id: 'kenganjaljet_venevajalla',

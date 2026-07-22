@@ -189,7 +189,7 @@ export function CaseFile({ state }: CaseFileProps) {
             {selectedClue ? (() => {
               const clueImage = 
                 selectedClue.id === 'elinan_aani_tallenteella' 
-                  ? '/images/ui/elinan_aani_tallenteella.jpg' 
+                  ? '/images/ui/elinan_aani_tallenteella.png' 
                   : selectedClue.id === 'kangas_antin_kadessa'
                   ? '/images/ui/kangas_antin_kadessa.jpg'
                   : selectedClue.id === 'antin_puhelin'
@@ -382,7 +382,6 @@ export function CaseFile({ state }: CaseFileProps) {
                       <button
                         onClick={() => {
                           audioSynth.playClueDiscovered();
-                          state.discoveredClues.push('elinan_aani_tallenteella'); // mutates correctly via triggers
                           const elinasVoiceClue = CLUES.find(c => c.id === 'elinan_aani_tallenteella');
                           if (elinasVoiceClue) {
                             (window as any)._discoverClueCallback?.('elinan_aani_tallenteella', elinasVoiceClue.name);
