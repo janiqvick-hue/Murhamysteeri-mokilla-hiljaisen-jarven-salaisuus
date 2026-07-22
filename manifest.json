@@ -1,0 +1,24 @@
+{
+  "name": "Murhamysteeri mökillä – Hiljaisen järven salaisuus",
+  "short_name": "Hiljainen Järvi",
+  "description": "Tutki mökkialuetta, kuulustele epäiltyjä ja ratkaise Antin murha tässä jännittävässä selainpohjaisessa rikosmysteeripelissä.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#18181b",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

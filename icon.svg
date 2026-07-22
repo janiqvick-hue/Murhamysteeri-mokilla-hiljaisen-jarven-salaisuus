@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#18181b" />
+      <stop offset="100%" stop-color="#09090b" />
+    </radialGradient>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e4e4e7" />
+      <stop offset="100%" stop-color="#71717a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGradient)" stroke="#27272a" stroke-width="8" />
+
+  <!-- Mystical Pines / Lake silhouette in background -->
+  <path d="M 120 320 L 160 220 L 200 320 Z" fill="#1e1b4b" opacity="0.4" />
+  <path d="M 170 340 L 220 200 L 270 340 Z" fill="#111827" opacity="0.6" />
+  <path d="M 240 330 L 290 210 L 340 330 Z" fill="#1e1b4b" opacity="0.4" />
+  
+  <!-- Lake Water Lines -->
+  <line x1="80" y1="340" x2="432" y2="340" stroke="#1d4ed8" stroke-width="4" opacity="0.3" stroke-linecap="round" />
+  <line x1="120" y1="355" x2="392" y2="355" stroke="#1d4ed8" stroke-width="3" opacity="0.2" stroke-linecap="round" />
+  <line x1="160" y1="370" x2="352" y2="370" stroke="#1d4ed8" stroke-width="2" opacity="0.1" stroke-linecap="round" />
+
+  <!-- Shield Badge Outline -->
+  <path d="M 256 90 C 310 90 380 110 380 110 C 380 230 310 330 256 390 C 202 330 132 230 132 110 C 132 110 202 90 256 90 Z" 
+        fill="none" stroke="url(#goldGradient)" stroke-width="12" stroke-linejoin="round" />
+
+  <!-- Magnifying Glass Inside Shield -->
+  <g transform="translate(16, -10)">
+    <!-- Handle -->
+    <rect x="290" y="290" width="30" height="110" rx="15" transform="rotate(-45 305 345)" fill="url(#goldGradient)" stroke="#78350f" stroke-width="3" />
+    <circle cx="362" cy="362" r="10" fill="#78350f" />
+    
+    <!-- Lens Frame -->
+    <circle cx="210" cy="210" r="70" fill="none" stroke="url(#silverGradient)" stroke-width="16" />
+    <circle cx="210" cy="210" r="78" fill="none" stroke="url(#goldGradient)" stroke-width="4" />
+    
+    <!-- Lens Reflections / Glass GLow -->
+    <circle cx="210" cy="210" r="62" fill="#3b82f6" opacity="0.15" />
+    <path d="M 165 180 A 55 55 0 0 1 230 155" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.6" />
+  </g>
+
+  <!-- Title Ribbon -->
+  <path d="M 90 410 L 422 410 L 400 450 L 112 450 Z" fill="#78350f" stroke="url(#goldGradient)" stroke-width="4" stroke-linejoin="round" />
+  <text x="256" y="438" fill="#fef08a" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="bold" text-anchor="middle" letter-spacing="4">HILJAINEN JÄRVI</text>
+</svg>
