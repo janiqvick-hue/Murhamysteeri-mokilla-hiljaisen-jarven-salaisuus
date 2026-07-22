@@ -349,6 +349,7 @@ export const LOCATIONS: LocationData[] = [
         description: 'Polun sivussa oleva terävä kuusenoksa, jossa näkyy jotain omituista.',
         x: 35,
         y: 45,
+        clueIdTrigger: 'kuusenoksa',
         revealText: 'Tarkastelet oksaa. Siinä ei ole mitään rikokseen suoraan liittyvää, mutta huomaat sen olevan erittäin terävä ja tahrainen. Elina väitti takkinsa revenneen täällä, mutta täältä ei löydy lainkaan takista irronneita kuituja tai paloja.'
       }
     ]
@@ -684,6 +685,21 @@ export const CLUES: Clue[] = [
     forensicAnalysis: 'Tyhjä unilääkepakkaus löytyi venevajan läheisyydestä kasvillisuuden seasta. Laboratoriotutkimuksessa pakkauksesta tunnistettiin reseptilääke, jonka vaikuttavaa ainetta löytyi myös Antin verinäytteistä. Lääkkeen pitoisuus ei yksin aiheuttanut kuolemaa, mutta se on voinut hidastaa uhrin reaktiokykyä ja heikentää hänen mahdollisuuksiaan puolustautua hyökkäyksen aikana. Pakkauksesta ei löytynyt käyttökelpoisia sormenjälkiä.',
     investigativeSignificance: 'Tyhjä unilääkepakkaus viittaa siihen, että rikos saattoi olla osittain ennalta suunniteltu. Se tukee teoriaa, jonka mukaan uhria pyrittiin heikentämään ennen väkivaltaista yhteenottoa. Yhdessä analysoidun äänitallenteen, rikkoutuneen metallilyhdyn ja muiden rikosteknisten todisteiden kanssa lääkepakkaus täydentää tapahtumaketjua ja auttaa selittämään, miksi Antti ei kyennyt puolustautumaan tehokkaasti.',
     connectedClues: ['elinan_aani_tallenteella', 'rikkinainen_lyhty', 'antin_puhelin', 'tilisiirto_elinalle']
+  },
+  {
+    id: 'kuusenoksa',
+    name: 'Katkennut kuusenoksa',
+    description: 'Polun sivussa oleva terävä kuusenoksa, jossa näkyy jotain omituista.',
+    iconType: 'branch',
+    locationId: 'metsapolku',
+    foundInObject: 'Katkennut kuusenoksa',
+    isMisleading: true,
+    detailedAnalysis: 'Tarkastelet oksaa. Siinä ei ole mitään rikokseen suoraan liittyvää, mutta huomaat sen olevan erittäin terävä. Elina väitti takkinsa revenneen täällä, mutta täältä ei löydy lainkaan takista irronneita kuituja tai paloja.',
+    category: 'Ympäristölöydös',
+    evidenceValueStars: 3,
+    forensicAnalysis: 'Metsäpolulla sijaitsevan terävän kuusenoksaan suoritettiin tarkka kuituanalyysi. Oksan neulasissa ja kaarnassa ei havaittu lainkaan kuitunäytteitä, kangaspaloja tai merkkejä laadukkaan kashmirvillakankaan takertumisesta. Tämä kumoaa selityksen siitä, että vaate olisi vaurioitunut metsässä liikuttaessa.',
+    investigativeSignificance: 'Katkennut kuusenoksa kumoaa Elinan väitteen siitä, että hänen kallis takkinsa olisi revennyt metsässä kävelyn aikana. Oksasta ei löytynyt kuituja, mikä vahvistaa, että takin repeämä ja Antin kädestä löytynyt kangaspala syntyivät kamppailussa rikospaikalla.',
+    connectedClues: ['repeytynyt_hiha', 'kangas_antin_kadessa']
   }
 ];
 

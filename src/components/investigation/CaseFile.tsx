@@ -9,7 +9,12 @@ interface CaseFileProps {
 }
 
 export function CaseFile({ state }: CaseFileProps) {
-  const [selectedClueId, setSelectedClueId] = useState<string | null>(null);
+  const [selectedClueId, setSelectedClueId] = useState<string | null>(() => {
+    if (state.discoveredClues.includes('saran_tallennin') && !state.discoveredClues.includes('elinan_aani_tallenteella')) {
+      return 'saran_tallennin';
+    }
+    return null;
+  });
   const [filterType, setFilterType] = useState<'ALL' | 'LOCATION' | 'SUSPECT'>('ALL');
   const [filterValue, setFilterValue] = useState<string>('');
 
@@ -228,6 +233,8 @@ export function CaseFile({ state }: CaseFileProps) {
                   ? '/images/ui/kuitu_lyhdyssa.jpg'
                   : selectedClue.id === 'venevajan_lukko'
                   ? '/images/ui/venevajan_lukko.jpg'
+                  : selectedClue.id === 'kuusenoksa'
+                  ? '/images/ui/kuusenoksa.jpg'
                   : null;
 
               return (

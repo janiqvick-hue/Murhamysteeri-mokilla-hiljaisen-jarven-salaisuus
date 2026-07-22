@@ -254,34 +254,7 @@ const playRoomAmbiance = (soundOn: boolean) => {
 
     tickInterval = setInterval(playTick, 1000);
 
-    // 3. Faint Rain against window (high-passed filtered white noise)
-    const bufferSize = 4096 * 2;
-    let rainNode: ScriptProcessorNode | null = null;
-    let rainGain: GainNode | null = null;
-
-    if (ctx.createScriptProcessor) {
-      rainNode = ctx.createScriptProcessor(bufferSize, 1, 1);
-      rainNode.onaudioprocess = (e) => {
-        const output = e.outputBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
-      };
-
-      const rainFilter = ctx.createBiquadFilter();
-      rainFilter.type = 'bandpass';
-      rainFilter.frequency.setValueAtTime(1400, ctx.currentTime);
-      rainFilter.Q.setValueAtTime(0.55, ctx.currentTime);
-
-      rainGain = ctx.createGain();
-      rainGain.gain.setValueAtTime(0.04, ctx.currentTime); // extremely quiet
-
-      rainNode.connect(rainFilter);
-      rainFilter.connect(rainGain);
-      rainGain.connect(masterGain);
-    }
-
-    // 4. Occasional Wood Creak (every 24 seconds)
+    // 3. Occasional Wood Creak (every 24 seconds)
     let woodCreakInterval: any = null;
     const playWoodCreak = () => {
       const t = ctx.currentTime;
@@ -316,7 +289,6 @@ const playRoomAmbiance = (soundOn: boolean) => {
       try {
         humOsc1.stop();
         humOsc2.stop();
-        if (rainNode) rainNode.disconnect();
         ctx.close();
       } catch (e) {
         console.error("Room audio cleanup error:", e);

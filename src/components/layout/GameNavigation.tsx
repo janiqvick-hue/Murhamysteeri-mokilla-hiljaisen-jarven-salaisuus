@@ -66,6 +66,9 @@ export function GameNavigation({
   // Determine if we are currently "investigating" inside a location
   const isInsideLocation = activeTab === 'MAP' && state.currentLocationId !== null;
 
+  // Determine if voice recorder needs noise reduction and analysis
+  const needsRecorderAnalysis = state.discoveredClues.includes('saran_tallennin') && !state.discoveredClues.includes('elinan_aani_tallenteella');
+
   return (
     <>
       {/* 1. DESKTOP NAVIGATION TABS (visible only on md and larger) */}
@@ -95,6 +98,12 @@ export function GameNavigation({
                     isActive ? 'bg-amber-950 border-amber-800 text-amber-300' : 'bg-slate-900 border-white/5 text-slate-400'
                   }`}>
                     {tab.badge}
+                  </span>
+                )}
+
+                {tab.id === 'CLUES' && needsRecorderAnalysis && (
+                  <span className="ml-1.5 px-2 py-0.5 text-[9px] font-mono font-bold bg-amber-500 text-black rounded-full border border-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse">
+                    UUSI
                   </span>
                 )}
 
@@ -150,10 +159,16 @@ export function GameNavigation({
         >
           <FolderOpen className="w-5 h-5 mb-0.5" />
           <span className="text-[9px] font-sans font-medium">{t('navigation.evidence')}</span>
-          {state.discoveredClues.length > 0 && (
-            <span className="absolute top-1.5 right-1/4 bg-amber-500 text-black text-[8px] font-bold font-mono px-1 rounded-full border border-black min-w-[14px] text-center">
-              {state.discoveredClues.length}
+          {needsRecorderAnalysis ? (
+            <span className="absolute top-1 right-1 bg-amber-500 text-black text-[8px] font-extrabold font-mono px-1 rounded-full border border-black animate-pulse shadow-md">
+              UUSI
             </span>
+          ) : (
+            state.discoveredClues.length > 0 && (
+              <span className="absolute top-1.5 right-1/4 bg-amber-500 text-black text-[8px] font-bold font-mono px-1 rounded-full border border-black min-w-[14px] text-center">
+                {state.discoveredClues.length}
+              </span>
+            )
           )}
         </button>
 

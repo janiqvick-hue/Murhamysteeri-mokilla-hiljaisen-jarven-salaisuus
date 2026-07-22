@@ -39,6 +39,7 @@ const DEFAULT_STATE: GameState = {
   showIntro: true,
   ratkaistutRistiriidat: [],
   vihjeTaso: 0,
+  hasSeenRecorderNotice: false,
 };
 
 export function useGameState() {
@@ -305,6 +306,13 @@ export function useGameState() {
     }));
   };
 
+  const markRecorderNoticeSeen = () => {
+    setState((prev) => ({
+      ...prev,
+      hasSeenRecorderNotice: true,
+    }));
+  };
+
   const totalCluesCount = 20; // total clues in the game
   const completionPercentage = Math.round(
     ((state.discoveredClues.length + state.discoveredContradictions.length * 2) / (totalCluesCount + 10)) * 100
@@ -330,5 +338,6 @@ export function useGameState() {
     totalCluesCount,
     solveContradiction,
     updateVihjeTaso,
+    markRecorderNoticeSeen,
   };
 }

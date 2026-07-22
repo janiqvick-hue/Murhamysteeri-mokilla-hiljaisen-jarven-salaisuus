@@ -1,6 +1,6 @@
 import { GameState, LocationData } from '../../types/game';
 import { LOCATIONS } from '../../data/storyData';
-import { MapPin, Lock, CheckCircle2, Home, Compass } from 'lucide-react';
+import { MapPin, CheckCircle2, Home, Compass } from 'lucide-react';
 import { audioSynth } from '../../hooks/useAudio';
 import { useLanguage } from '../../localization/useLanguage';
 
@@ -12,40 +12,7 @@ interface MapViewProps {
 export function MapView({ state, onSelectLocation }: MapViewProps) {
   const { language } = useLanguage();
 
-  const getPhaseName = (phase: string) => {
-    if (language === 'fi') {
-      if (phase === 'VAIHE2') return 'Vaihe 2 – Salaisuudet';
-      if (phase === 'VAIHE3') return 'Vaihe 3 – Todisteet';
-      if (phase === 'ACCUSATION') return 'Ratkaisun Hetki';
-      return 'Vaihe 1 – Alkututkinta';
-    } else {
-      if (phase === 'VAIHE2') return 'Phase 2 – Secrets';
-      if (phase === 'VAIHE3') return 'Phase 3 – Evidence';
-      if (phase === 'ACCUSATION') return 'Moment of Truth';
-      return 'Phase 1 – Initial Investigation';
-    }
-  };
-
-  const isLocationUnlocked = (loc: LocationData) => {
-    if (loc.unlockedAtPhase === 'PROLOGUE' || loc.unlockedAtPhase === 'VAIHE1') {
-      return true;
-    }
-    if (loc.unlockedAtPhase === 'VAIHE2') {
-      return state.currentPhase === 'VAIHE2' || state.currentPhase === 'VAIHE3' || state.currentPhase === 'ACCUSATION';
-    }
-    if (loc.unlockedAtPhase === 'VAIHE3') {
-      return state.currentPhase === 'VAIHE3' || state.currentPhase === 'ACCUSATION';
-    }
-    return false;
-  };
-
   const handleLocationClick = (loc: LocationData) => {
-    if (!isLocationUnlocked(loc)) {
-      if (state.settings.soundOn) {
-        audioSynth.playClick();
-      }
-      return;
-    }
     audioSynth.playClick();
     onSelectLocation(loc.id);
   };
@@ -108,8 +75,8 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
           </div>
           <p className="text-xs text-slate-200/90 font-sans leading-relaxed drop-shadow-md">
             {language === 'fi' 
-              ? 'Valitse sijainti kartalta tutkiaksesi ympäristöä ja etsiäksesi johtolankoja. Alueet laajentuvat ja avautuvat tutkinnan edetessä.'
-              : 'Select a location from the map to investigate the environment and search for clues. Areas expand and open as the investigation progresses.'}
+              ? 'Valitse sijainti kartalta tutkiaksesi ympäristöä ja etsiäksesi johtolankoja. Kaikki alueet ovat avoinna tutkintaa varten.'
+              : 'Select a location from the map to investigate the environment and search for clues. All areas are open for investigation.'}
           </p>
         </div>
 
@@ -127,7 +94,6 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
 
             <div className="space-y-3.5">
               {cabinLocs.map((loc) => {
-                const unlocked = isLocationUnlocked(loc);
                 const visited = state.visitedLocations.includes(loc.id);
                 const inspectablesCount = loc.inspectables.length;
 
@@ -135,12 +101,7 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
                   <button
                     key={loc.id}
                     onClick={() => handleLocationClick(loc)}
-                    disabled={!unlocked}
-                    className={`w-full p-3.5 border rounded-2xl transition-all duration-300 text-left flex items-start justify-between relative cursor-pointer group shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md ${
-                      unlocked
-                        ? 'bg-zinc-950/45 border-amber-500/10 hover:-translate-y-1 hover:border-amber-500/40 hover:bg-zinc-900/40 hover:shadow-[0_4px_25px_rgba(198,146,20,0.18)]'
-                        : 'bg-black/55 border-zinc-800/10 opacity-75 cursor-not-allowed'
-                    }`}
+                    className="w-full p-3.5 border rounded-2xl transition-all duration-300 text-left flex items-start justify-between relative cursor-pointer group shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md bg-zinc-950/45 border-amber-500/10 hover:-translate-y-1 hover:border-amber-500/40 hover:bg-zinc-900/40 hover:shadow-[0_4px_25px_rgba(198,146,20,0.18)]"
                     id={`map-loc-${loc.id}`}
                   >
                     <div className="flex gap-4 w-full">
@@ -150,46 +111,35 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
                           src={getImageForLocation(loc.id)} 
                           alt={loc.name} 
                           referrerPolicy="no-referrer"
-                          className={`w-full h-full object-cover transition-transform duration-500 ${unlocked ? 'group-hover:scale-110' : 'grayscale contrast-75 brightness-75'}`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
-                        {!unlocked && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <Lock className="w-4.5 h-4.5 text-amber-500/90" />
-                          </div>
-                        )}
                       </div>
 
                       {/* Text details */}
                       <div className="space-y-1 flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-sm font-sans font-semibold transition-colors duration-300 ${unlocked ? 'text-slate-100 group-hover:text-amber-400 font-bold' : 'text-slate-400'}`}>
+                          <span className="text-sm font-sans font-semibold transition-colors duration-300 text-slate-100 group-hover:text-amber-400 font-bold">
                             {loc.name}
                           </span>
-                          {visited && unlocked && (
+                          {visited && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" title="Tutkittu paikka" />
                           )}
                         </div>
-                        <p className={`text-[11px] leading-snug transition-colors duration-300 ${unlocked ? 'text-slate-300/90' : 'text-slate-500 font-medium'}`}>
-                          {unlocked ? loc.shortDesc : `${language === 'fi' ? 'Lukittu.' : 'Locked.'} ${getPhaseName(loc.unlockedAtPhase)}.`}
+                        <p className="text-[11px] leading-snug transition-colors duration-300 text-slate-300/90">
+                          {loc.shortDesc}
                         </p>
                         
-                        {unlocked && (
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5 font-sans">
-                            <span>
-                              {language === 'fi' 
-                                ? `🔍 ${inspectablesCount} johtolankaa odottaa` 
-                                : `🔍 ${inspectablesCount} clues waiting`}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5 font-sans">
+                          <span>
+                            {language === 'fi' 
+                              ? `🔍 ${inspectablesCount} johtolankaa odottaa` 
+                              : `🔍 ${inspectablesCount} clues waiting`}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="pl-1 self-center shrink-0">
-                        {unlocked ? (
-                          <MapPin className={`w-4 h-4 transition-transform group-hover:scale-125 ${visited ? 'text-emerald-500/70' : 'text-amber-500'}`} />
-                        ) : (
-                          <Lock className="w-4 h-4 text-amber-500/50" />
-                        )}
+                        <MapPin className={`w-4 h-4 transition-transform group-hover:scale-125 ${visited ? 'text-emerald-500/70' : 'text-amber-500'}`} />
                       </div>
                     </div>
                   </button>
@@ -209,7 +159,6 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
 
             <div className="space-y-3.5">
               {lakeLocs.map((loc) => {
-                const unlocked = isLocationUnlocked(loc);
                 const visited = state.visitedLocations.includes(loc.id);
                 const inspectablesCount = loc.inspectables.length;
 
@@ -217,12 +166,7 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
                   <button
                     key={loc.id}
                     onClick={() => handleLocationClick(loc)}
-                    disabled={!unlocked}
-                    className={`w-full p-3.5 border rounded-2xl transition-all duration-300 text-left flex items-start justify-between relative cursor-pointer group shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md ${
-                      unlocked
-                        ? 'bg-zinc-950/45 border-amber-500/10 hover:-translate-y-1 hover:border-amber-500/40 hover:bg-zinc-900/40 hover:shadow-[0_4px_25px_rgba(198,146,20,0.18)]'
-                        : 'bg-black/55 border-zinc-800/10 opacity-75 cursor-not-allowed'
-                    }`}
+                    className="w-full p-3.5 border rounded-2xl transition-all duration-300 text-left flex items-start justify-between relative cursor-pointer group shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md bg-zinc-950/45 border-amber-500/10 hover:-translate-y-1 hover:border-amber-500/40 hover:bg-zinc-900/40 hover:shadow-[0_4px_25px_rgba(198,146,20,0.18)]"
                     id={`map-loc-${loc.id}`}
                   >
                     <div className="flex gap-4 w-full">
@@ -232,49 +176,38 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
                           src={getImageForLocation(loc.id)} 
                           alt={loc.name} 
                           referrerPolicy="no-referrer"
-                          className={`w-full h-full object-cover transition-transform duration-500 ${unlocked ? 'group-hover:scale-110' : 'grayscale contrast-75 brightness-75'}`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
-                        {!unlocked && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <Lock className="w-4.5 h-4.5 text-amber-500/90" />
-                          </div>
-                        )}
                       </div>
 
                       {/* Text details */}
                       <div className="space-y-1 flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-sm font-sans font-semibold transition-colors duration-300 ${unlocked ? 'text-slate-100 group-hover:text-amber-400 font-bold' : 'text-slate-400'}`}>
+                          <span className="text-sm font-sans font-semibold transition-colors duration-300 text-slate-100 group-hover:text-amber-400 font-bold">
                             {loc.name}
                           </span>
-                          {visited && unlocked && (
+                          {visited && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" title="Tutkittu paikka" />
                           )}
                           {loc.id === 'venevaja' && (
                             <span className="text-[8px] font-mono bg-amber-950/80 border border-amber-800 text-amber-500 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Rikospaikka</span>
                           )}
                         </div>
-                        <p className={`text-[11px] leading-snug transition-colors duration-300 ${unlocked ? 'text-slate-300/90' : 'text-slate-500 font-medium'}`}>
-                          {unlocked ? loc.shortDesc : `${language === 'fi' ? 'Lukittu.' : 'Locked.'} ${getPhaseName(loc.unlockedAtPhase)}.`}
+                        <p className="text-[11px] leading-snug transition-colors duration-300 text-slate-300/90">
+                          {loc.shortDesc}
                         </p>
                         
-                        {unlocked && (
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5 font-sans">
-                            <span>
-                              {language === 'fi' 
-                                ? `🔍 ${inspectablesCount} johtolankaa odottaa` 
-                                : `🔍 ${inspectablesCount} clues waiting`}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5 font-sans">
+                          <span>
+                            {language === 'fi' 
+                              ? `🔍 ${inspectablesCount} johtolankaa odottaa` 
+                              : `🔍 ${inspectablesCount} clues waiting`}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="pl-1 self-center shrink-0">
-                        {unlocked ? (
-                          <MapPin className={`w-4 h-4 transition-transform group-hover:scale-125 ${visited ? 'text-emerald-500/70' : 'text-amber-500'}`} />
-                        ) : (
-                          <Lock className="w-4 h-4 text-amber-500/50" />
-                        )}
+                        <MapPin className={`w-4 h-4 transition-transform group-hover:scale-125 ${visited ? 'text-emerald-500/70' : 'text-amber-500'}`} />
                       </div>
                     </div>
                   </button>
@@ -294,7 +227,6 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
 
             <div className="space-y-3.5">
               {forestLocs.map((loc) => {
-                const unlocked = isLocationUnlocked(loc);
                 const visited = state.visitedLocations.includes(loc.id);
                 const inspectablesCount = loc.inspectables.length;
 
@@ -302,12 +234,7 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
                   <button
                     key={loc.id}
                     onClick={() => handleLocationClick(loc)}
-                    disabled={!unlocked}
-                    className={`w-full p-3.5 border rounded-2xl transition-all duration-300 text-left flex items-start justify-between relative cursor-pointer group shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md ${
-                      unlocked
-                        ? 'bg-zinc-950/45 border-amber-500/10 hover:-translate-y-1 hover:border-amber-500/40 hover:bg-zinc-900/40 hover:shadow-[0_4px_25px_rgba(198,146,20,0.18)]'
-                        : 'bg-black/55 border-zinc-800/10 opacity-75 cursor-not-allowed'
-                    }`}
+                    className="w-full p-3.5 border rounded-2xl transition-all duration-300 text-left flex items-start justify-between relative cursor-pointer group shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md bg-zinc-950/45 border-amber-500/10 hover:-translate-y-1 hover:border-amber-500/40 hover:bg-zinc-900/40 hover:shadow-[0_4px_25px_rgba(198,146,20,0.18)]"
                     id={`map-loc-${loc.id}`}
                   >
                     <div className="flex gap-4 w-full">
@@ -317,46 +244,35 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
                           src={getImageForLocation(loc.id)} 
                           alt={loc.name} 
                           referrerPolicy="no-referrer"
-                          className={`w-full h-full object-cover transition-transform duration-500 ${unlocked ? 'group-hover:scale-110' : 'grayscale contrast-75 brightness-75'}`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
-                        {!unlocked && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <Lock className="w-4.5 h-4.5 text-amber-500/90" />
-                          </div>
-                        )}
                       </div>
 
                       {/* Text details */}
                       <div className="space-y-1 flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-sm font-sans font-semibold transition-colors duration-300 ${unlocked ? 'text-slate-100 group-hover:text-amber-400 font-bold' : 'text-slate-400'}`}>
+                          <span className="text-sm font-sans font-semibold transition-colors duration-300 text-slate-100 group-hover:text-amber-400 font-bold">
                             {loc.name}
                           </span>
-                          {visited && unlocked && (
+                          {visited && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" title="Tutkittu paikka" />
                           )}
                         </div>
-                        <p className={`text-[11px] leading-snug transition-colors duration-300 ${unlocked ? 'text-slate-300/90' : 'text-slate-500 font-medium'}`}>
-                          {unlocked ? loc.shortDesc : `${language === 'fi' ? 'Lukittu.' : 'Locked.'} ${getPhaseName(loc.unlockedAtPhase)}.`}
+                        <p className="text-[11px] leading-snug transition-colors duration-300 text-slate-300/90">
+                          {loc.shortDesc}
                         </p>
                         
-                        {unlocked && (
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5 font-sans">
-                            <span>
-                              {language === 'fi' 
-                                ? `🔍 ${inspectablesCount} johtolankaa odottaa` 
-                                : `🔍 ${inspectablesCount} clues waiting`}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5 font-sans">
+                          <span>
+                            {language === 'fi' 
+                              ? `🔍 ${inspectablesCount} johtolankaa odottaa` 
+                              : `🔍 ${inspectablesCount} clues waiting`}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="pl-1 self-center shrink-0">
-                        {unlocked ? (
-                          <MapPin className={`w-4 h-4 transition-transform group-hover:scale-125 ${visited ? 'text-emerald-500/70' : 'text-amber-500'}`} />
-                        ) : (
-                          <Lock className="w-4 h-4 text-amber-500/50" />
-                        )}
+                        <MapPin className={`w-4 h-4 transition-transform group-hover:scale-125 ${visited ? 'text-emerald-500/70' : 'text-amber-500'}`} />
                       </div>
                     </div>
                   </button>
@@ -382,8 +298,8 @@ export function MapView({ state, onSelectLocation }: MapViewProps) {
           <div className="flex gap-2 shrink-0">
             <span className="text-[10px] font-mono bg-zinc-950/80 border border-amber-500/20 text-amber-500 py-1.5 px-4 rounded-xl uppercase tracking-wider font-bold shadow-md">
               {language === 'fi' 
-                ? `Avatut paikat: ${state.visitedLocations.length} / 11` 
-                : `Unlocked Areas: ${state.visitedLocations.length} / 11`}
+                ? `Avatut paikat: 11 / 11` 
+                : `Unlocked Areas: 11 / 11`}
             </span>
           </div>
         </div>

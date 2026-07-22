@@ -3,6 +3,7 @@ import { useGameState } from './hooks/useGameState';
 import { useAudio } from './hooks/useAudio';
 import { IntroScreen } from './components/menu/IntroScreen';
 import { GameInterface } from './components/layout/GameInterface';
+import { GlobalLightningFlash } from './components/ui/GlobalLightningFlash';
 
 export default function App() {
   const {
@@ -25,6 +26,7 @@ export default function App() {
     totalCluesCount,
     solveContradiction,
     updateVihjeTaso,
+    markRecorderNoticeSeen,
   } = useGameState();
 
   // Track if the game has started in this session using sessionStorage
@@ -67,37 +69,43 @@ export default function App() {
     setHasStarted(false);
   };
 
-  return hasStarted ? (
-    <GameInterface
-      state={state}
-      toast={toast}
-      setToast={setToast}
-      changeLocation={changeLocation}
-      discoverClue={discoverClue}
-      completeDialogueTopic={completeDialogueTopic}
-      discoverContradiction={discoverContradiction}
-      saveNotes={saveNotes}
-      updateSettings={updateSettings}
-      submitAccusation={submitAccusation}
-      returnToInvestigation={returnToInvestigation}
-      resetGame={() => {
-        resetGame();
-        handleReturnToMainMenu();
-      }}
-      setPhase={setPhase}
-      completionPercentage={completionPercentage}
-      totalCluesCount={totalCluesCount}
-      onReturnToMainMenu={handleReturnToMainMenu}
-      solveContradiction={solveContradiction}
-      updateVihjeTaso={updateVihjeTaso}
-    />
-  ) : (
-    <IntroScreen
-      state={state}
-      onStartNewGame={handleStartNewGame}
-      onContinueGame={handleContinueGame}
-      onUpdateSettings={updateSettings}
-    />
+  return (
+    <>
+      <GlobalLightningFlash />
+      {hasStarted ? (
+        <GameInterface
+          state={state}
+          toast={toast}
+          setToast={setToast}
+          changeLocation={changeLocation}
+          discoverClue={discoverClue}
+          completeDialogueTopic={completeDialogueTopic}
+          discoverContradiction={discoverContradiction}
+          saveNotes={saveNotes}
+          updateSettings={updateSettings}
+          submitAccusation={submitAccusation}
+          returnToInvestigation={returnToInvestigation}
+          resetGame={() => {
+            resetGame();
+            handleReturnToMainMenu();
+          }}
+          setPhase={setPhase}
+          completionPercentage={completionPercentage}
+          totalCluesCount={totalCluesCount}
+          onReturnToMainMenu={handleReturnToMainMenu}
+          solveContradiction={solveContradiction}
+          updateVihjeTaso={updateVihjeTaso}
+          markRecorderNoticeSeen={markRecorderNoticeSeen}
+        />
+      ) : (
+        <IntroScreen
+          state={state}
+          onStartNewGame={handleStartNewGame}
+          onContinueGame={handleContinueGame}
+          onUpdateSettings={updateSettings}
+        />
+      )}
+    </>
   );
 }
 

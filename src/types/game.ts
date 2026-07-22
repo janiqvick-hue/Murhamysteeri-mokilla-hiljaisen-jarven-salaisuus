@@ -25,6 +25,7 @@ export interface GameState {
   showIntro: boolean; // false if they clicked 'pelaa'
   ratkaistutRistiriidat: string[];
   vihjeTaso: number;
+  hasSeenRecorderNotice?: boolean;
 }
 
 export interface InspectableObject {
@@ -54,7 +55,7 @@ export interface Clue {
   id: string;
   name: LocalizedText;
   description: LocalizedText;
-  iconType: 'lantern' | 'fiber' | 'sleeve' | 'phone' | 'message' | 'paper' | 'account' | 'tape' | 'voice' | 'footprint' | 'shoe' | 'clothes' | 'flashlight' | 'lock' | 'fabric' | 'clock' | 'keys' | 'ash' | 'tools' | 'pills';
+  iconType: 'lantern' | 'fiber' | 'sleeve' | 'phone' | 'message' | 'paper' | 'account' | 'tape' | 'voice' | 'footprint' | 'shoe' | 'clothes' | 'flashlight' | 'lock' | 'fabric' | 'clock' | 'keys' | 'ash' | 'tools' | 'pills' | 'branch';
   locationId: string;
   foundInObject?: string; // Inspectable object name
   suspectId?: string; // Linked suspect if any

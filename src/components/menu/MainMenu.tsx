@@ -57,55 +57,30 @@ export function MainMenu({ state, onNewGame, onContinueGame, onOpenSettings }: M
     };
   }, [state.settings.musicOn, isTransitioning]);
 
-  // Handle weather/lightning atmospheric timers, immediately cancellable upon transition
+  // Synchronize visual lightning flashes with the central audioSynth thunder cycle
   useEffect(() => {
     if (isTransitioning || isFadingOut) {
       setIsFlashActive(false);
+      audioSynth.setOnThunderCallback(null);
       return;
     }
 
-    let lightningTimer: NodeJS.Timeout | null = null;
-    let thunderTimer: NodeJS.Timeout | null = null;
     let flashOffTimer: NodeJS.Timeout | null = null;
-    let active = true;
 
-    const triggerLightning = () => {
-      if (!active || isTransitioning || isFadingOut) return;
-
-      // 1. Trigger the visual flash
+    audioSynth.setOnThunderCallback((_isClose) => {
       setIsFlashActive(true);
-      
-      // Flash duration: random 150-250ms
       const flashDuration = 150 + Math.random() * 100;
+      if (flashOffTimer) clearTimeout(flashOffTimer);
       flashOffTimer = setTimeout(() => {
         setIsFlashActive(false);
       }, flashDuration);
-
-      // 2. Play corresponding deep thunder sound after a random 1-3 seconds delay
-      const thunderDelay = 1000 + Math.random() * 2000;
-      thunderTimer = setTimeout(() => {
-        if (!active || isTransitioning || isFadingOut) return;
-        if (state.settings.soundOn) {
-          audioSynth.triggerDynamicThunder();
-        }
-      }, thunderDelay);
-
-      // 3. Schedule next lightning flash in 20-45 seconds
-      const nextInterval = 20000 + Math.random() * 25000;
-      lightningTimer = setTimeout(triggerLightning, nextInterval);
-    };
-
-    // First lightning flash after a brief warm-up (12-25 seconds after opening menu)
-    const initialDelay = 12000 + Math.random() * 13000;
-    lightningTimer = setTimeout(triggerLightning, initialDelay);
+    });
 
     return () => {
-      active = false;
-      if (lightningTimer) clearTimeout(lightningTimer);
-      if (thunderTimer) clearTimeout(thunderTimer);
+      audioSynth.setOnThunderCallback(null);
       if (flashOffTimer) clearTimeout(flashOffTimer);
     };
-  }, [state.settings.soundOn, isTransitioning, isFadingOut]);
+  }, [isTransitioning, isFadingOut]);
 
   // Refined double-click-safe rapid launch sequence (600ms - 900ms fadeout, silent transition)
   const handleStartNewGame = () => {

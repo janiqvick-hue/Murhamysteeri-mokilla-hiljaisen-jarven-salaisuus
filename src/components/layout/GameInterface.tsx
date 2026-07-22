@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FolderOpen, X } from 'lucide-react';
 import { GameState, Settings, Accusation } from '../../types/game';
 import { LOCATIONS, SUSPECTS } from '../../data/storyData';
 import { ActiveTab, GameNavigation } from './GameNavigation';
@@ -35,6 +36,7 @@ interface GameInterfaceProps {
   onReturnToMainMenu: () => void;
   solveContradiction: (id: string) => void;
   updateVihjeTaso: (taso: number) => void;
+  markRecorderNoticeSeen?: () => void;
 }
 
 export function GameInterface({
@@ -56,12 +58,35 @@ export function GameInterface({
   onReturnToMainMenu,
   solveContradiction,
   updateVihjeTaso,
+  markRecorderNoticeSeen,
 }: GameInterfaceProps) {
   // Active workspace tab
   const [activeTab, setActiveTab] = useState<ActiveTab>('MAP');
 
   // Settings menu toggle
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Modal notice for voice recorder analysis
+  const [showRecorderModal, setShowRecorderModal] = useState(false);
+
+  useEffect(() => {
+    if (state.discoveredClues.includes('saran_tallennin') && !state.hasSeenRecorderNotice) {
+      setShowRecorderModal(true);
+    }
+  }, [state.discoveredClues, state.hasSeenRecorderNotice]);
+
+  const handleOpenEvidenceFromModal = () => {
+    if (markRecorderNoticeSeen) markRecorderNoticeSeen();
+    setShowRecorderModal(false);
+    setActiveTab('CLUES');
+    if (state.currentLocationId) changeLocation(null);
+    window.scrollTo({ top: 0, behavior: 'instant' as any });
+  };
+
+  const handleCloseRecorderModal = () => {
+    if (markRecorderNoticeSeen) markRecorderNoticeSeen();
+    setShowRecorderModal(false);
+  };
 
   // Active interrogation suspect (null means show list of suspects)
   const [activeSuspectId, setActiveSuspectId] = useState<string | null>(null);
@@ -268,6 +293,42 @@ export function GameInterface({
           onUpdateSettings={updateSettings}
           onReturnToMainMenu={onReturnToMainMenu}
         />
+      )}
+
+      {/* Voice Recorder Analysis Notification Modal */}
+      {showRecorderModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-zinc-900 border border-amber-500/40 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-5 text-center relative">
+            <button
+              onClick={handleCloseRecorderModal}
+              className="absolute top-3 right-3 text-zinc-500 hover:text-white p-1 rounded-full transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+              <FolderOpen className="w-7 h-7" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-serif font-bold text-amber-400">
+                Uusi toimenpide käytettävissä
+              </h3>
+              <p className="text-sm text-zinc-300 font-sans leading-relaxed">
+                Löysit digitaalisen äänitallentimen.<br />
+                Avaa Todisteet ja suorita tallenteen kohinanpoisto sekä analyysi jatkaaksesi tutkintaa.
+              </p>
+            </div>
+
+            <button
+              onClick={handleOpenEvidenceFromModal}
+              className="w-full py-3 px-5 bg-amber-600 hover:bg-amber-500 text-white font-sans text-sm font-bold rounded-lg transition-all cursor-pointer shadow-lg border border-amber-500/40 flex items-center justify-center gap-2"
+            >
+              <FolderOpen className="w-4 h-4" />
+              Avaa Todisteet
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Dynamic persistent Toast notifications for unlocks and progress */}
