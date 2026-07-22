@@ -6,7 +6,7 @@
 
  🚧 Current Status: In Active Development • Regular Updates
 
- 🇫🇮 Finnish cinematic murder mystery browser game developed by **Qvick Games Studio**.
+ 🇫🇮 A cinematic Finnish murder mystery game where every clue matters. Developed by Qvick Games Studio.
 
 ---
 
