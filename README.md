@@ -3,13 +3,10 @@
 </p>
 
 # Murhamysteeri mökillä – Hiljaisen järven salaisuus
-# Murhamysteeri mökillä – Hiljaisen järven salaisuus
 
-A cinematic Finnish murder mystery browser game developed by **Qvick Games Studio**.
+ 🚧 Current Status: In Active Development • Regular Updates
 
-The player investigates a mysterious death at a remote lakeside cabin, searches locations for evidence, questions suspects and eventually decides who is responsible.
-
-> **Current status:** Active development
+ 🇫🇮 Finnish cinematic murder mystery browser game developed by **Qvick Games Studio**.
 
 ---
 
