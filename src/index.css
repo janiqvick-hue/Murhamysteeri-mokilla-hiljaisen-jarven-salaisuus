@@ -77,105 +77,63 @@
   }
 }
 
-/* Two-layer cinematic moving fog */
-.back-fog {
+/* Slowly drifting mist/fog */
+.fog-overlay {
   position: absolute;
-  inset: 0;
-  width: 250%;
-  height: 100%;
-  left: -75%;
-  background: radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 50%, transparent 80%);
-  filter: blur(12px);
-  pointer-events: none;
-  z-index: 1;
-  animation: back-fog-drift 90s linear infinite;
-}
-
-.front-fog {
-  position: absolute;
-  bottom: -10%;
-  left: -60%;
-  width: 220%;
-  height: 45%;
-  background: radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.008) 45%, transparent 75%);
-  filter: blur(6px);
+  bottom: 0;
+  left: -50%;
+  width: 200%;
+  height: 50%;
+  background: radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 45%, transparent 80%);
+  filter: blur(8px);
+  animation: fog-move 22s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 2;
-  animation: front-fog-drift 55s linear infinite;
 }
 
-@keyframes back-fog-drift {
+@keyframes fog-move {
   0% {
-    transform: translateX(-10%) scale(1.0);
+    transform: translateX(0) scaleY(1);
+    opacity: 0.6;
   }
   50% {
-    transform: translateX(10%) scale(1.1);
+    transform: translateX(8%) scaleY(1.1) skewX(1deg);
+    opacity: 0.85;
   }
   100% {
-    transform: translateX(-10%) scale(1.0);
+    transform: translateX(-4%) scaleY(0.95) skewX(-1deg);
+    opacity: 0.55;
   }
 }
 
-@keyframes front-fog-drift {
-  0% {
-    transform: translateX(-12%) translateY(0) skewX(-2deg);
-  }
-  50% {
-    transform: translateX(12%) translateY(-15px) skewX(2deg);
-  }
-  100% {
-    transform: translateX(-12%) translateY(0) skewX(-2deg);
-  }
-}
-
-/* Golden border pulse for main menu buttons */
-.button-pulse-effect {
-  animation: button-border-pulse 7.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-@keyframes button-border-pulse {
-  0%, 75%, 100% {
-    border-color: rgba(198, 146, 20, 0.5);
-    box-shadow: 0 0 15px rgba(198, 146, 20, 0.1), inset 0 0 10px rgba(198, 146, 20, 0.05);
-  }
-  85% {
-    border-color: rgba(251, 191, 36, 0.9); /* amber-400 */
-    box-shadow: 0 0 22px rgba(251, 191, 36, 0.4), inset 0 0 12px rgba(251, 191, 36, 0.2);
-  }
-}
-
-/* Random subtle lightning flash controlled dynamically by React */
+/* Random subtle lightning flash */
 .lightning-overlay {
   position: absolute;
   inset: 0;
   background-color: rgba(255, 255, 255, 0);
   pointer-events: none;
+  animation: lightning-flash 14s infinite;
   z-index: 3;
 }
 
-.lightning-flash-active {
-  animation: single-lightning-flash 250ms cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
-}
-
-@keyframes single-lightning-flash {
-  0% {
-    background-color: rgba(219, 234, 254, 0.35); /* Cold bluish white at peak */
+@keyframes lightning-flash {
+  0%, 91%, 93%, 95%, 100% {
+    background-color: rgba(255, 255, 255, 0);
   }
-  100% {
-    background-color: rgba(219, 234, 254, 0);
+  92% {
+    background-color: rgba(191, 219, 254, 0.07); /* Faint blue lightning flash */
+  }
+  94% {
+    background-color: rgba(219, 234, 254, 0.11); /* Double flash */
   }
 }
 
 /* Support for Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   .rain-overlay,
+  .fog-overlay,
   .lightning-overlay {
     animation: none !important;
     display: none !important;
-  }
-  .back-fog,
-  .front-fog,
-  .button-pulse-effect {
-    animation: none !important;
   }
 }
