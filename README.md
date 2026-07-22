@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="public/images/Readme-banner.png" alt="Murhamysteeri mökillä – Hiljaisen järven salaisuus" width="100%">
+</p>
+
+# Murhamysteeri mökillä – Hiljaisen järven salaisuus
 # Murhamysteeri mökillä – Hiljaisen järven salaisuus
 
 A cinematic Finnish murder mystery browser game developed by **Qvick Games Studio**.
