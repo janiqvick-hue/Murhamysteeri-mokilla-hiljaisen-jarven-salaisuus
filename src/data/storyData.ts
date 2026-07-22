@@ -86,7 +86,7 @@ export const LOCATIONS: LocationData[] = [
         id: 'naulakko',
         name: 'Eteisen naulakko',
         description: 'Naulakossa roikkuu märkiä takkeja ja lattialla on useita kenkäpareja.',
-        x: 15,
+        x: 16,
         y: 50,
         clueIdTrigger: 'elinan_kengat',
         revealText: 'Tarkastelet lattialla olevia kenkiä. Huomaat Elinan tyylikkäät vaelluskengät, joiden pohjassa on hyvin omaperäinen, kalanruotomainen ja tähtimäinen kumikuviointi. Ne ovat yhä hieman kosteat.'
@@ -135,8 +135,8 @@ export const LOCATIONS: LocationData[] = [
         id: 'saran_laukku',
         name: 'Saran käsilaukku',
         description: 'Saran avoinna oleva reppu sängyn vieressä.',
-        x: 60,
-        y: 70,
+        x: 74,
+        y: 86,
         clueIdTrigger: 'saran_tallennin',
         revealText: 'Kurkistat varovasti Saran reppuun, kun hän ei katso. Löydät sieltä pienen digitaalisen äänitallentimen. Se on edelleen päällä ja näyttää tallentaneen tunteja ääntä!'
       },
@@ -144,8 +144,8 @@ export const LOCATIONS: LocationData[] = [
         id: 'elinan_kaappi',
         name: 'Elinan vaatekaappi',
         description: 'Elinan käyttämä puoli vaatekaapista. Siellä roikkuu hänen tyylikäs musta ulkotakkinsa.',
-        x: 25,
-        y: 40,
+        x: 28,
+        y: 38,
         clueIdTrigger: 'repeytynyt_hiha',
         revealText: 'Tutkit Elinan mustaa villakangastakkia. Huomaat, että oikean hihan suu on repeytynyt pahasti, ja siitä puuttuu pala kangasta. Repeämän reunoilla on pienenpieniä tummanpunaisia tahroja, jotka näyttävät vereltä!'
       }
@@ -214,7 +214,7 @@ export const LOCATIONS: LocationData[] = [
         x: 80,
         y: 75,
         clueIdTrigger: 'tyhja_laakepakkaus',
-        revealText: 'Kurkotat lauteiden alle ja löydät tyhjän reseptilääkepakkauksen. Se on voimakasta unilääkettä, kirjoitettu Antti Lehtosen nimelle. Oliko joku yrittänyt huumata hänet, vai kärsikö hän unettomuudesta? (Harhaanjohtava johtolanka)'
+        revealText: 'Kurkotat lauteiden alle ja löydät tyhjän reseptilääkepakkauksen. Se on voimakasta unilääkettä, kirjoitettu Antti Lehtosen nimelle. Oliko joku yrittänyt huumata hänet, vai kärsikö hän unettomuudesta?'
       }
     ]
   },
@@ -368,7 +368,7 @@ export const LOCATIONS: LocationData[] = [
         description: 'Elinan maastoauton takakontti, joka näyttää olevan lukitsematta.',
         x: 70,
         y: 60,
-        clueIdTrigger: 'elinan_kengat_auto', // Actually points to the same clue concept or triggers further info
+        clueIdTrigger: 'elinan_kengat', // Points to existing elinan_kengat clue
         revealText: 'Avaat auton takakontin varovasti. Löydät sieltä tyylikkään mustan ulkoilutakin suojapussin ja tyhjän kenkälaatikon, joka vahvistaa Elinan ostaneen juuri ne kalanruotokuvioiset vaelluskengät, jotka ovat mökin eteisessä!'
       }
     ]

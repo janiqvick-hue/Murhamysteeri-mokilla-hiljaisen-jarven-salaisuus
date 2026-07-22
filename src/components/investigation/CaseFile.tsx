@@ -153,9 +153,6 @@ export function CaseFile({ state }: CaseFileProps) {
                             <MapPin className="w-2.5 h-2.5 text-slate-600" />
                             {loc?.name || 'Mökki'}
                           </span>
-                          {clue.isMisleading && (
-                            <span className="bg-slate-900 text-amber-600 border border-amber-600/20 px-1 rounded uppercase tracking-wider text-[8px] font-bold">Harhautus</span>
-                          )}
                         </div>
                       </div>
                     </button>
@@ -227,6 +224,10 @@ export function CaseFile({ state }: CaseFileProps) {
                   ? '/images/ui/saran_tallennin.jpg'
                   : selectedClue.id === 'tyhja_laakepakkaus'
                   ? '/images/ui/tyhja_laakepakkaus.jpg'
+                  : selectedClue.id === 'kuitu_lyhdyssa'
+                  ? '/images/ui/kuitu_lyhdyssa.jpg'
+                  : selectedClue.id === 'venevajan_lukko'
+                  ? '/images/ui/venevajan_lukko.jpg'
                   : null;
 
               return (
