@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GameState, GamePhase, Settings } from '../types/game';
+import { GameState, GamePhase, Settings, Accusation } from '../types/game';
 
 const LOCAL_STORAGE_KEY = 'hiljaisen_jarven_salaisuus_save';
 
@@ -34,8 +34,11 @@ const DEFAULT_STATE: GameState = {
   accusationAttempts: 0,
   gameCompleted: false,
   isAccusationCorrect: false,
+  lastAccusation: null,
   settings: DEFAULT_SETTINGS,
   showIntro: true,
+  ratkaistutRistiriidat: [],
+  vihjeTaso: 0,
 };
 
 export function useGameState() {
@@ -49,6 +52,8 @@ export function useGameState() {
           ...DEFAULT_STATE,
           ...parsed,
           settings: { ...DEFAULT_SETTINGS, ...parsed.settings },
+          ratkaistutRistiriidat: parsed.ratkaistutRistiriidat || [],
+          vihjeTaso: typeof parsed.vihjeTaso === 'number' ? parsed.vihjeTaso : 0,
         };
       }
     } catch (e) {
@@ -75,7 +80,7 @@ export function useGameState() {
     setState({
       ...DEFAULT_STATE,
       showIntro: false,
-      currentPhase: 'PROLOGUE',
+      currentPhase: 'VAIHE1',
       currentLocationId: null,
       visitedLocations: [],
       discoveredClues: [],
@@ -84,6 +89,8 @@ export function useGameState() {
       accusationAttempts: 0,
       gameCompleted: false,
       isAccusationCorrect: false,
+      ratkaistutRistiriidat: [],
+      vihjeTaso: 0,
     });
     showNotification('Uusi peli aloitettu. Hiljainen järvi odottaa...', 'info');
   };
@@ -137,12 +144,12 @@ export function useGameState() {
     const cluesCount = state.discoveredClues.length;
     
     // Automatically progress phases
-    if (state.currentPhase === 'VAIHE1' && cluesCount >= 5) {
+    if (state.currentPhase === 'VAIHE1' && cluesCount >= 5 && state.ratkaistutRistiriidat?.includes('elina_alibi_murrettu')) {
       setPhase('VAIHE2');
     } else if (state.currentPhase === 'VAIHE2' && cluesCount >= 11) {
       setPhase('VAIHE3');
     }
-  }, [state.discoveredClues, state.currentPhase, state.gameCompleted]);
+  }, [state.discoveredClues, state.currentPhase, state.gameCompleted, state.ratkaistutRistiriidat]);
 
   const discoverClue = (clueId: string, name: string) => {
     setState((prev) => {
@@ -254,10 +261,11 @@ export function useGameState() {
     }));
   };
 
-  const submitAccusation = (isCorrect: boolean) => {
+  const submitAccusation = (accusation: Accusation, isCorrect: boolean) => {
     setState((prev) => ({
       ...prev,
       accusationAttempts: prev.accusationAttempts + 1,
+      lastAccusation: accusation,
       gameCompleted: isCorrect,
       isAccusationCorrect: isCorrect,
       currentPhase: isCorrect ? 'ENDING' : prev.currentPhase,
@@ -278,6 +286,23 @@ export function useGameState() {
       ...DEFAULT_STATE,
       showIntro: false,
     });
+  };
+
+  const solveContradiction = (id: string) => {
+    setState((prev) => {
+      if (prev.ratkaistutRistiriidat.includes(id)) return prev;
+      return {
+        ...prev,
+        ratkaistutRistiriidat: [...prev.ratkaistutRistiriidat, id],
+      };
+    });
+  };
+
+  const updateVihjeTaso = (taso: number) => {
+    setState((prev) => ({
+      ...prev,
+      vihjeTaso: taso,
+    }));
   };
 
   const totalCluesCount = 20; // total clues in the game
@@ -303,5 +328,7 @@ export function useGameState() {
     setPhase,
     completionPercentage,
     totalCluesCount,
+    solveContradiction,
+    updateVihjeTaso,
   };
 }
