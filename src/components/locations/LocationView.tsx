@@ -201,38 +201,68 @@ export function LocationView({ location, state, onBackToMap, onDiscoverClue }: L
   };
 
   const handleInspect = () => {
-    if (!selectedObject) return;
-    
-    // Play material sound effect
-    playObjectSound(selectedObject, false);
+  if (!selectedObject) return;
 
-    setRevealText(selectedObject.revealText ? tText(selectedObject.revealText) : (t('settings.textSizeNormal') === 'Normaali' ? 'Tutkit kohdetta tarkasti, mutta et löydä mitään epätavallista.' : 'You inspect the object closely, but find nothing unusual.'));
+  // Play material sound effect
+  playObjectSound(selectedObject, false);
 
-    if (selectedObject.clueIdTrigger) {
-      const clue = CLUES.find(c => c.id === selectedObject.clueIdTrigger);
-      if (clue) {
-        // Trigger discovery of the clue
-        onDiscoverClue(clue.id, tText(clue.name));
-        
-        // Mark as inspected
-        if (!inspectedIds.includes(selectedObject.id)) {
-          setInspectedIds(prev => [...prev, selectedObject.id]);
+  setRevealText(
+    selectedObject.revealText
+      ? tText(selectedObject.revealText)
+      : t('settings.textSizeNormal') === 'Normaali'
+      ? 'Tutkit kohdetta tarkasti, mutta et löydä mitään epätavallista.'
+      : 'You inspect the object closely, but find nothing unusual.'
+  );
+
+  if (selectedObject.clueIdTrigger) {
+    const clue = CLUES.find(
+      (clueItem) => clueItem.id === selectedObject.clueIdTrigger
+    );
+
+    if (clue) {
+      // Trigger discovery of the main clue
+      onDiscoverClue(clue.id, tText(clue.name));
+
+      // Inspecting Sara's recorder also reveals Elina's voice.
+      if (clue.id === 'saran_tallennin') {
+        const voiceRecordingClue = CLUES.find(
+          (clueItem) => clueItem.id === 'elinan_aani_tallenteella'
+        );
+
+        if (voiceRecordingClue) {
+          onDiscoverClue(
+            voiceRecordingClue.id,
+            tText(voiceRecordingClue.name)
+          );
+        } else {
+          console.error(
+            '[PUUTTUVA JOHTOLANKA]: CLUES-listasta ei löytynyt johtolankaa "elinan_aani_tallenteella".'
+          );
         }
+      }
 
-        // Special trigger: If finding 'saran_tallennin' and we are in VAIHE3,
-        // let's also auto-discover 'elinan_aani_tallenteella' once analyzed or inspected!
-        // To keep it simple, if they find saran_tallennin, let's also give them a prompt
-        // to analyze it in their case file, or let them find the voice recording as part of it!
-        // Let's make 'elinan_aani_tallenteella' discoverable once they analyze the recorder,
-        // which we can implement as an action in the CaseFile or on the Detective Desk!
+      // Mark as inspected
+      if (!inspectedIds.includes(selectedObject.id)) {
+        setInspectedIds((prev) => [
+          ...prev,
+          selectedObject.id,
+        ]);
       }
     } else {
-      // Just plain inspection item
-      if (!inspectedIds.includes(selectedObject.id)) {
-        setInspectedIds(prev => [...prev, selectedObject.id]);
-      }
+      console.error(
+        `[PUUTTUVA JOHTOLANKA]: Kohteen "${selectedObject.id}" clueIdTrigger-arvoa "${selectedObject.clueIdTrigger}" ei löytynyt CLUES-listasta.`
+      );
     }
-  };
+  } else {
+    // Just plain inspection item
+    if (!inspectedIds.includes(selectedObject.id)) {
+      setInspectedIds((prev) => [
+        ...prev,
+        selectedObject.id,
+      ]);
+    }
+  }
+};
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-6 space-y-6" id="location-view-container">
