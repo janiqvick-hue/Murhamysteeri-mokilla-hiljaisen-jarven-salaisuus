@@ -115,10 +115,8 @@ class AmbientAudioEngine {
     if (!this.rainAudio) {
       this.rainAudio = new Audio('/audio/ambient/dragon-studio-gentle-rain-07-437321.mp3');
       this.rainAudio.loop = true;
-      this.rainAudio.onerror = () => {
-        if (this.rainAudio && !this.rainAudio.src.endsWith('rain-loop.mp3')) {
-          this.rainAudio.src = '/audio/ambient/rain-loop.mp3';
-        }
+      this.rainAudio.onerror = (e) => {
+        console.warn('Rain audio error:', e);
       };
     }
 
