@@ -1,5 +1,5 @@
 import { GameState, Accusation } from '../../types/game';
-import { ShieldCheck, ShieldAlert, RotateCcw, ArrowRight, Award, FileText, CheckCircle2, AlertOctagon } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, RotateCcw, ArrowRight, Award, FileText, CheckCircle2, AlertOctagon, Stamp, UserCheck } from 'lucide-react';
 import { audioSynth } from '../../hooks/useAudio';
 import { useLanguage } from '../../localization/useLanguage';
 
@@ -45,37 +45,47 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
     }
 
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-4 relative overflow-hidden" id="ending-failed-container">
-        <div className="absolute inset-0 bg-radial-[circle_at_center] from-red-950/20 via-zinc-950 to-zinc-950 pointer-events-none" />
+      <div className="min-h-screen bg-[#110c08] text-stone-100 flex items-center justify-center p-4 relative overflow-hidden select-none" id="ending-failed-container">
+        <div className="absolute inset-0 bg-radial-[circle_at_center] from-red-950/30 via-[#110c08] to-[#110c08] pointer-events-none" />
 
-        <div className="max-w-xl w-full bg-zinc-900 border border-red-900/40 p-6 md:p-8 rounded-lg shadow-2xl relative z-10 animate-scale-up" id="ending-failed-box">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-red-950 border border-red-700/60 rounded-full text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-              <ShieldAlert className="w-8 h-8" />
+        <div className="max-w-xl w-full bg-[#1c130d] border-2 border-red-900/80 p-6 md:p-8 rounded-xs shadow-[0_20px_50px_rgba(0,0,0,0.95)] relative z-10 animate-scale-up space-y-6" id="ending-failed-box">
+          
+          {/* OFFICIAL STAMP HEADER */}
+          <div className="flex items-center justify-between border-b border-stone-800 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-red-950 border border-red-700/80 rounded-full text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+                <ShieldAlert className="w-8 h-8" />
+              </div>
+              <div>
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-stone-100 tracking-tight">
+                  {titleText}
+                </h2>
+                <p className="text-xs font-mono text-red-400 uppercase tracking-wider">
+                  {subtitleText}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg md:text-2xl font-sans font-bold text-zinc-100 tracking-tight">
-                {titleText}
-              </h2>
-              <p className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
-                {subtitleText}
-              </p>
+
+            {/* Official Rejection Stamp */}
+            <div className="border-2 border-red-700 text-red-600 font-mono text-[10px] font-extrabold px-3 py-1 rounded-2xs uppercase tracking-widest bg-red-950/50 shadow-sm hidden sm:flex items-center gap-1.5 rotate-3">
+              <Stamp className="w-4 h-4" />
+              <span>SYYTE HYLÄTTY</span>
             </div>
           </div>
 
-          <div className="space-y-4 text-sm font-sans leading-relaxed text-zinc-300">
+          <div className="space-y-4 text-sm font-sans leading-relaxed text-stone-300">
             <p>
               {isFi
-                ? 'Esitit syytöksen ja järjestit todistusaineiston pöydälle. Syyttäjä ja poliisijohto kävivät teoriasi läpi ja päätyivät seuraavaan tulokseen:'
+                ? 'Esitit syytöksen ja järjestit todistusaineiston pöydälle. Syyttäjä ja poliisijohto kävivät teoriasi läpi ja päätyivät seuraavaan lausuntoon:'
                 : 'You presented your accusation and evidence. The prosecutor reviewed your theory and concluded the following:'}
             </p>
 
-            <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-md space-y-3">
+            <div className="bg-[#120b07] border border-red-900/60 p-4 rounded-xs space-y-3 shadow-inner">
               <span className="text-xs font-bold text-amber-500 font-mono uppercase tracking-wide flex items-center gap-1.5">
                 <AlertOctagon className="w-4 h-4 text-amber-500" />
-                {isFi ? 'Tutkinnan havainnot syytöksestäsi:' : 'Prosecution feedback:'}
+                {isFi ? 'Poliisin ja syyttäjän havainnot:' : 'Prosecution feedback:'}
               </span>
-              <ul className="list-disc pl-5 text-xs space-y-2 text-zinc-300">
+              <ul className="list-disc pl-5 text-xs space-y-2 text-stone-300">
                 {feedbacks.map((fb, idx) => (
                   <li key={idx} className="leading-relaxed">
                     {isFi ? fb.fi : fb.en}
@@ -91,17 +101,17 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
               </ul>
             </div>
 
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-stone-400 italic">
               {isFi
-                ? 'Muista tutkia paikkoja, yhdistää löytämäsi johtolangat Tutkintataululla ja varmistaa, että valitset täsmälleen oikean henkilön, motiivin, tekovälineen, paikan ja 3–5 kiistatonta todistetta.'
+                ? 'Muista tutkia mökin paikkoja, yhdistää johtolangat Tutkintataululla ja varmistaa, että valitset täsmälleen oikean henkilön, motiivin, tekovälineen, paikan ja 3–5 kiistatonta todistetta.'
                 : 'Investigate locations, combine discovered clues on the Investigation Board, and ensure you select the correct suspect, motive, weapon, crime scene, and 3–5 undeniable clues.'}
             </p>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-zinc-800 flex flex-col sm:flex-row gap-3 justify-end">
+          <div className="pt-4 border-t border-stone-800 flex flex-col sm:flex-row gap-3 justify-end">
             <button
               onClick={handleReturn}
-              className="py-3 px-6 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-sans text-xs font-semibold rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg hover:-translate-y-0.5"
+              className="py-3 px-6 bg-amber-700 hover:bg-amber-600 active:bg-amber-800 text-white font-sans text-xs font-bold uppercase tracking-wider rounded-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg hover:-translate-y-0.5 border border-amber-600/40"
               id="btn-return-investigate"
             >
               <span>{isFi ? 'Palaa tutkimaan mökkiä' : 'Return to Investigation'}</span>
@@ -115,31 +125,37 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
 
   // CORRECT ACCUSATION - SUCCESSFUL ENDING RENDER BLOCK
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 py-10 px-4 relative overflow-y-auto" id="ending-success-container">
+    <div className="min-h-screen bg-[#0f1410] text-stone-100 py-10 px-4 relative overflow-y-auto select-none" id="ending-success-container">
       {/* Immersive cinematic background */}
-      <div className="absolute inset-0 bg-radial-[circle_at_center] from-blue-950/20 via-zinc-950 to-zinc-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-[circle_at_center] from-emerald-950/25 via-[#0f1410] to-[#0f1410] pointer-events-none" />
 
-      <div className="max-w-3xl mx-auto bg-zinc-900 border border-zinc-800 p-6 md:p-10 rounded-lg shadow-2xl relative z-10 animate-fade-in" id="ending-success-box">
-        {/* Banner */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="p-3 bg-emerald-950 border border-emerald-500 rounded-full mb-3 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-            <ShieldCheck className="w-12 h-12 animate-bounce" />
+      <div className="max-w-3xl mx-auto bg-[#161f18] border-2 border-emerald-800/80 p-6 md:p-10 rounded-xs shadow-[0_25px_60px_rgba(0,0,0,0.95)] relative z-10 animate-fade-in space-y-8" id="ending-success-box">
+        
+        {/* Banner with Official Solved Stamp */}
+        <div className="flex flex-col items-center text-center relative border-b border-stone-800 pb-8">
+          
+          <div className="absolute top-0 right-0 border-2 border-emerald-500 text-emerald-400 font-mono text-xs font-extrabold px-3.5 py-1.5 rounded-2xs uppercase tracking-widest bg-emerald-950/80 shadow-md hidden sm:flex items-center gap-1.5 rotate-6">
+            <Stamp className="w-4 h-4" />
+            <span>TAPAUS RATKAISTU</span>
           </div>
-          <h1 className="text-2xl md:text-4xl font-sans font-bold text-zinc-100 tracking-tight">
-            {isFi ? 'MYSTEERI ON RATKAISTU!' : 'MYSTERY SOLVED!'}
+
+          <div className="p-4 bg-emerald-950 border border-emerald-500 rounded-full mb-3 text-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.3)]">
+            <ShieldCheck className="w-12 h-12" />
+          </div>
+          <h1 className="text-2xl md:text-4xl font-serif font-bold text-stone-100 tracking-tight">
+            {isFi ? 'TAPAUS RATKAISTU – SYYTE HYVÄKSYTTY!' : 'CASE SOLVED – CHARGES ACCEPTED!'}
           </h1>
-          <p className="text-xs md:text-sm font-mono text-emerald-500 uppercase tracking-widest mt-1.5 font-bold">
+          <p className="text-xs md:text-sm font-mono text-emerald-400 uppercase tracking-widest mt-2 font-bold">
             {isFi ? 'Oikeus on tapahtunut Hiljaisella järvellä' : 'Justice has been served at Silent Lake'}
           </p>
-          <div className="w-24 h-[1px] bg-emerald-500/30 mt-4" />
         </div>
 
         {/* Story Reconstruction */}
-        <div className="space-y-6 font-sans text-sm md:text-base leading-relaxed text-zinc-300">
+        <div className="space-y-6 font-sans text-sm md:text-base leading-relaxed text-stone-300">
           <section className="space-y-3">
-            <h3 className="text-lg font-sans font-semibold text-amber-500 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-amber-500" />
-              {isFi ? 'Mitä tapahtui? – Tapahtumien rekonstruktio' : 'What Happened? – Crime Reconstruction'}
+            <h3 className="text-lg font-serif font-bold text-amber-400 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-amber-400" />
+              {isFi ? 'Mitä tapahtui? – Tapahtumien virallinen rekonstruktio' : 'Crime Reconstruction'}
             </h3>
             <p>
               {isFi
@@ -164,85 +180,86 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
           </section>
 
           {/* Clue Explanations */}
-          <section className="bg-zinc-950 border border-zinc-800 p-5 rounded-md space-y-3">
-            <h4 className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-4 h-4 text-zinc-500" />
+          <section className="bg-[#0e1711] border border-emerald-900/60 p-5 rounded-xs space-y-3">
+            <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+              <FileText className="w-4 h-4 text-emerald-500" />
               {isFi ? 'Tärkeimpien johtolankojen merkitys tuomiossa:' : 'Key Evidence Significance:'}
             </h4>
-            <ul className="text-xs space-y-2.5 text-zinc-400 pl-4 list-disc">
+            <ul className="text-xs space-y-2.5 text-stone-300 pl-4 list-disc">
               <li>
-                <strong className="text-zinc-200">{isFi ? 'Kavalluksen tilisiirto ja kirjanpito:' : 'Embezzlement transfer & ledgers:'}</strong> {isFi ? 'Paljasti Elinan taloudellisen motiivin.' : 'Revealed Elina’s financial motive.'}
+                <strong className="text-stone-100">{isFi ? 'Kavalluksen tilisiirto ja kirjanpito:' : 'Embezzlement transfer & ledgers:'}</strong> {isFi ? 'Paljasti Elinan taloudellisen motiivin.' : 'Revealed Elina’s financial motive.'}
               </li>
               <li>
-                <strong className="text-zinc-200">{isFi ? 'Saran äänitallenne:' : 'Sara’s recording:'}</strong> {isFi ? 'Kumosi Elinan keittiöalibin täysin todistamalla hänen olleen venevajalla.' : 'Completely disproved Elina’s kitchen alibi.'}
+                <strong className="text-stone-100">{isFi ? 'Saran äänitallenne:' : 'Sara’s recording:'}</strong> {isFi ? 'Kumosi Elinan keittiöalibin täysin todistamalla hänen olleen venevajalla.' : 'Completely disproved Elina’s kitchen alibi.'}
               </li>
               <li>
-                <strong className="text-zinc-200">{isFi ? 'Musta kangaspala ja kuitu lyhdyssä:' : 'Fabric torn & fiber on lantern:'}</strong> {isFi ? 'Sitoivat Elinan fyysisesti kamppailuun.' : 'Physically bound Elina to the struggle.'}
+                <strong className="text-stone-100">{isFi ? 'Musta kangaspala ja kuitu lyhdyssä:' : 'Fabric torn & fiber on lantern:'}</strong> {isFi ? 'Sitoivat Elinan fyysisesti kamppailuun.' : 'Physically bound Elina to the struggle.'}
               </li>
               <li>
-                <strong className="text-zinc-200">{isFi ? 'Venevajan kengänjäljet:' : 'Boathouse footprints:'}</strong> {isFi ? 'Kalanruotokuviot vastasivat täydellisesti Elinan kenkiä.' : 'Herringbone patterns matched Elina’s shoes.'}
+                <strong className="text-stone-100">{isFi ? 'Venevajan kengänjäljet:' : 'Boathouse footprints:'}</strong> {isFi ? 'Kalanruotokuviot vastasivat täydellisesti Elinan kenkiä.' : 'Herringbone patterns matched Elina’s shoes.'}
               </li>
               <li>
-                <strong className="text-zinc-200">{isFi ? 'Rikkoutunut lyhty:' : 'Broken lantern:'}</strong> {isFi ? 'Toimi murha-aseena, josta löytyi kuitua ja hiuksia.' : 'Served as the murder weapon.'}
+                <strong className="text-stone-100">{isFi ? 'Rikkoutunut lyhty:' : 'Broken lantern:'}</strong> {isFi ? 'Toimi murha-aseena, josta löytyi kuitua ja hiuksia.' : 'Served as the murder weapon.'}
               </li>
             </ul>
           </section>
 
           {/* Character Epilogues */}
-          <section className="space-y-3 border-t border-zinc-800 pt-6">
-            <h3 className="text-lg font-sans font-semibold text-amber-500">
+          <section className="space-y-3 border-t border-stone-800 pt-6">
+            <h3 className="text-lg font-serif font-bold text-amber-400 flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-amber-400" />
               {isFi ? 'Mitä ystäville tapahtui myöhemmin?' : 'Epilogue'}
             </h3>
-            <p className="text-sm text-zinc-400">
-              <strong className="text-zinc-200">Elina Koskinen</strong> {isFi ? 'tuomittiin pitkään vankeusrangaistukseen.' : 'was sentenced to prison for manslaughter and embezzlement.'}
+            <p className="text-sm text-stone-300">
+              <strong className="text-stone-100">Elina Koskinen</strong> {isFi ? 'tuomittiin pitkään vankeusrangaistukseen.' : 'was sentenced to prison for manslaughter and embezzlement.'}
             </p>
-            <p className="text-sm text-zinc-400">
-              <strong className="text-zinc-200">Markus Salo</strong> {isFi ? 'pelastui vankeusepäilyiltä ja hakeutui hoitoon peliongelmaansa.' : 'was cleared of suspicion and sought treatment for his gambling addiction.'}
+            <p className="text-sm text-stone-300">
+              <strong className="text-stone-100">Markus Salo</strong> {isFi ? 'pelastui vankeusepäilyiltä ja hakeutui hoitoon peliongelmaansa.' : 'was cleared of suspicion and sought treatment for his gambling addiction.'}
             </p>
-            <p className="text-sm text-zinc-400">
-              <strong className="text-zinc-200">Laura Niemi</strong> {isFi ? 'perusti pienen taidegallerian Antin muistoksi.' : 'opened a small art gallery in Antti’s memory.'}
+            <p className="text-sm text-stone-300">
+              <strong className="text-stone-100">Laura Niemi</strong> {isFi ? 'perusti pienen taidegallerian Antin muistoksi.' : 'opened a small art gallery in Antti’s memory.'}
             </p>
-            <p className="text-sm text-zinc-400">
-              <strong className="text-zinc-200">Sara Virtanen</strong> {isFi ? 'kirjoitti bestseller-kirjan tapahtumista.' : 'wrote a bestselling book about the case.'}
+            <p className="text-sm text-stone-300">
+              <strong className="text-stone-100">Sara Virtanen</strong> {isFi ? 'kirjoitti bestseller-kirjan tapahtumista.' : 'wrote a bestselling book about the case.'}
             </p>
-            <p className="text-sm text-zinc-400">
-              <strong className="text-zinc-200">Oskari Mäkelä</strong> {isFi ? 'oli huojentunut, että mökin synkkä varjo haihtui.' : 'was relieved the dark shadow over the cottage was cleared.'}
+            <p className="text-sm text-stone-300">
+              <strong className="text-stone-100">Oskari Mäkelä</strong> {isFi ? 'oli huojentunut, että mökin synkkä varjo haihtui.' : 'was relieved the dark shadow over the cottage was cleared.'}
             </p>
           </section>
         </div>
 
         {/* Stats Summary */}
-        <div className="mt-8 pt-6 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-950 p-4 rounded-md">
+        <div className="pt-6 border-t border-stone-800 flex flex-col md:flex-row items-center justify-between gap-4 bg-[#0e1711] p-4 rounded-xs border border-emerald-900/40">
           <div className="flex items-center gap-3">
-            <Award className="w-8 h-8 text-amber-500" />
+            <Award className="w-8 h-8 text-amber-400" />
             <div>
-              <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">{isFi ? 'TUTKINNAN YHTEENVETO' : 'SUMMARY'}</p>
-              <p className="text-sm font-sans text-zinc-300">
-                {isFi ? 'Arvosanasi:' : 'Rank:'} <span className="text-emerald-500 font-bold">{isFi ? 'Mestarietsivä' : 'Master Detective'}</span>
+              <p className="text-xs font-mono text-stone-400 uppercase tracking-wider">{isFi ? 'TUTKINNAN LOPPUARVOSANA' : 'FINAL RANK'}</p>
+              <p className="text-base font-serif font-bold text-emerald-400">
+                {isFi ? 'Mestarietsivä (Aukoton syyte)' : 'Master Detective'}
               </p>
             </div>
           </div>
-          <div className="flex gap-4 text-xs font-mono text-zinc-400">
+          <div className="flex gap-5 text-xs font-mono text-stone-300">
             <div>
               <span>{isFi ? 'Syytösyritykset:' : 'Attempts:'} </span>
-              <span className="text-zinc-200 font-bold">{state.accusationAttempts}</span>
+              <span className="text-amber-400 font-bold">{state.accusationAttempts}</span>
             </div>
             <div>
               <span>{isFi ? 'Johtolangat löydetty:' : 'Clues:'} </span>
-              <span className="text-zinc-200 font-bold">{state.discoveredClues.length}/20</span>
+              <span className="text-emerald-400 font-bold">{state.discoveredClues.length}/20</span>
             </div>
           </div>
         </div>
 
         {/* Play Again button */}
-        <div className="mt-8 flex justify-center">
+        <div className="pt-4 flex justify-center">
           <button
             onClick={handleRestart}
-            className="py-3 px-8 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-sans font-semibold rounded-md flex items-center gap-2 transition-all cursor-pointer shadow-[0_4px_10px_rgba(16,185,129,0.2)] hover:shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:-translate-y-0.5"
+            className="py-3.5 px-10 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white font-serif font-bold uppercase tracking-wider text-xs rounded-xs flex items-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 border border-emerald-500/50"
             id="btn-play-again"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>{isFi ? 'Pelaa uudelleen' : 'Play Again'}</span>
+            <span>{isFi ? 'Aloita uusi tutkinta' : 'Play Again'}</span>
           </button>
         </div>
       </div>
