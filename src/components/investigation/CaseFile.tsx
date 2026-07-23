@@ -133,6 +133,8 @@ export function CaseFile({ state }: CaseFileProps) {
   };
 
   const getClueImage = (clueId: string): string | null => {
+    const clueObj = CLUES.find(c => c.id === clueId);
+    if (clueObj?.imageUrl) return clueObj.imageUrl;
     switch (clueId) {
       case 'elinan_aani_tallenteella': return '/images/ui/elinan_aani_tallenteella.png';
       case 'kangas_antin_kadessa': return '/images/ui/kangas_antin_kadessa.jpg';
@@ -459,7 +461,7 @@ export function CaseFile({ state }: CaseFileProps) {
         </div>
 
         {/* RIGHT COLUMN: Selected Clue Detail Analyzer Dossier (5 Cols) */}
-        <div className="lg:col-span-5 bg-zinc-950/90 border border-amber-900/40 rounded-2xl p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
+        <div className="lg:col-span-5 bg-zinc-950/95 border border-amber-900/50 rounded-2xl p-4 md:p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
           
           <div className="space-y-4 flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between pb-2.5 border-b border-amber-950/60">
@@ -476,75 +478,92 @@ export function CaseFile({ state }: CaseFileProps) {
 
             {selectedClue ? (() => {
               const clueImage = getClueImage(selectedClue.id);
+              const isKeyEvidence = (selectedClue.evidenceValueStars || 3) >= 4;
 
               return (
-                <div className="space-y-4 flex-1 flex flex-col justify-start animate-fade-in py-1 overflow-y-auto max-h-[65vh] pr-1">
+                <div key={selectedClue.id} className="space-y-4 flex-1 flex flex-col justify-start py-1 overflow-y-auto max-h-[68vh] pr-1 animate-clue-zoom">
                   
-                  {/* Clue Visual Representation */}
-                  {clueImage ? (
-                    <div className="w-full overflow-hidden rounded-xl border border-amber-500/30 bg-zinc-950 flex justify-center items-center shadow-2xl relative group" id={`clue-image-container-${selectedClue.id}`}>
+                  {/* 1. LARGE PREVIEW IMAGE AT TOP OF ANALYSIS AREA */}
+                  <div className="w-full overflow-hidden rounded-xl border border-amber-500/40 bg-zinc-950/90 flex justify-center items-center shadow-2xl relative group min-h-[190px] max-h-[280px] p-2" id={`clue-image-container-${selectedClue.id}`}>
+                    {clueImage ? (
                       <img
+                        key={`img-${selectedClue.id}`}
                         src={clueImage}
                         alt={selectedClue.name}
-                        className="w-full h-auto max-h-[220px] object-contain filter contrast-105"
+                        className="w-full h-auto max-h-[260px] object-contain filter contrast-105 rounded-lg transition-transform duration-300 group-hover:scale-[1.02]"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded text-[9px] font-mono text-amber-300 border border-amber-500/30">
-                        VALOKUVALABORATORIO
+                    ) : (
+                      <div className="w-full aspect-[16/9] max-h-[140px] rounded-xl border border-dashed border-amber-500/20 bg-zinc-950/60 flex flex-col items-center justify-center text-slate-500 gap-1.5" id={`clue-no-image-${selectedClue.id}`}>
+                        <div className="p-2 bg-zinc-900 border border-amber-500/20 text-amber-500 rounded-full">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <span className="text-[9px] font-mono tracking-widest uppercase">Ei valokuvallista tallennetta</span>
                       </div>
+                    )}
+                    <div className="absolute bottom-2 right-2 bg-black/85 backdrop-blur-sm px-2 py-1 rounded text-[9px] font-mono text-amber-300 border border-amber-500/40 pointer-events-none shadow-md">
+                      RIKOSTEKNINEN ESIKATSELU
                     </div>
-                  ) : (
-                    <div className="w-full aspect-[16/9] max-h-[110px] rounded-xl border border-dashed border-amber-500/20 bg-zinc-950/60 flex flex-col items-center justify-center text-slate-500 gap-1.5" id={`clue-no-image-${selectedClue.id}`}>
-                      <div className="p-2 bg-zinc-900 border border-amber-500/20 text-amber-500 rounded-full">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <span className="text-[9px] font-mono tracking-widest uppercase">Ei valokuvallista tallennetta</span>
-                    </div>
-                  )}
+                  </div>
 
-                  {/* Header metadata */}
-                  <div className="space-y-1.5">
-                    <h3 className="text-xl font-serif italic font-bold text-amber-100">
+                  {/* 2. UNDER IMAGE: NAME, CATEGORY, LOCATION, MARKERS */}
+                  <div className="space-y-2 bg-zinc-900/60 border border-amber-900/40 p-3.5 rounded-xl shadow-md">
+                    {/* Todisteen nimi */}
+                    <h3 className="text-lg md:text-xl font-serif italic font-bold text-amber-100 leading-snug">
                       {selectedClue.name}
                     </h3>
                     
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                          Löytöpaikka: <strong className="text-amber-200">{selectedClueLocation?.name}</strong>
-                        </span>
+                    {/* Metadata Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono border-t border-amber-950/60 pt-2.5 mt-1">
+                      {/* Kategoria */}
+                      <div className="flex items-center gap-1.5 text-slate-300">
+                        <span className="text-slate-500 uppercase text-[9px] shrink-0">Kategoria:</span>
+                        <strong className="text-amber-200 font-sans font-semibold text-[11px] truncate">
+                          {selectedClue.category || 'Tekniikka / Esine'}
+                        </strong>
+                      </div>
+
+                      {/* Löytöpaikka */}
+                      <div className="flex items-center gap-1.5 text-slate-300">
+                        <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <span className="text-slate-500 uppercase text-[9px] shrink-0">Löytöpaikka:</span>
+                        <strong className="text-amber-200 font-sans font-semibold text-[11px] truncate">
+                          {selectedClueLocation?.name || 'Tuntematon'}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Merkinnät */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-amber-950/40 pt-2 text-[10px] font-mono">
+                      <div className="flex items-center gap-2">
+                        {isKeyEvidence ? (
+                          <span className="bg-amber-950/90 border border-amber-500/80 text-amber-300 px-2.5 py-0.5 rounded font-bold flex items-center gap-1 text-[10px] shadow-sm">
+                            <Star className="w-3 h-3 fill-amber-400" />
+                            TÄRKEÄ TODISTE
+                          </span>
+                        ) : (
+                          <span className="bg-zinc-800/80 border border-zinc-700/60 text-amber-400 px-2 py-0.5 rounded font-bold flex items-center gap-1 text-[10px]">
+                            {'★'.repeat(selectedClue.evidenceValueStars || 3)}
+                            <span className="text-[9px] text-slate-400 font-normal">Normaali</span>
+                          </span>
+                        )}
+
                         {selectedClueSuspect && (
-                          <span className="flex items-center gap-1 text-sky-400">
-                            <User2 className="w-3.5 h-3.5" />
-                            Hahmo: <strong className="text-sky-300">{selectedClueSuspect.name}</strong>
+                          <span className="flex items-center gap-1 text-sky-400 bg-sky-950/50 px-2 py-0.5 rounded border border-sky-800/40">
+                            <User2 className="w-3 h-3" />
+                            <strong className="text-sky-300 font-sans font-semibold">{selectedClueSuspect.name}</strong>
                           </span>
                         )}
                       </div>
-                      <span className="text-[9px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-700/40">
+
+                      <span className="text-[9px] font-mono text-amber-400/90 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-700/40">
                         ID: {selectedClue.id}
                       </span>
                     </div>
                   </div>
 
-                  {/* Category and Evidence Stars Badge */}
-                  <div className="grid grid-cols-2 gap-3 text-[10px] font-mono border-t border-b border-amber-950/60 py-2.5 bg-zinc-900/40 px-3 rounded-lg">
-                    <div>
-                      <span className="text-slate-400 block uppercase tracking-wider">Kategoria:</span>
-                      <span className="text-amber-200 font-sans font-semibold text-[11px]">{selectedClue.category || 'Tekniikka / Esine'}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block uppercase tracking-wider">Todistusarvo:</span>
-                      <span className="text-amber-400 font-sans font-bold flex items-center gap-1 text-[11px]">
-                        {'★'.repeat(selectedClue.evidenceValueStars || 3)}
-                        <span className="text-[9px] text-slate-400 font-mono font-normal">
-                          {(selectedClue.evidenceValueStars || 3) >= 4 ? 'Erittäin korkea' : 'Normaali'}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Description */}
+                  {/* 3. BELOW: UNCHANGED DETECTIVE LAB ANALYZER CONTENT */}
+                  {/* Yleiskuvaus */}
                   <div className="space-y-1 bg-zinc-900/80 border border-amber-900/30 p-3.5 rounded-xl">
                     <span className="text-[9px] font-mono font-bold text-amber-500 uppercase tracking-widest block">Yleiskuvaus:</span>
                     <p className="text-xs text-slate-200 font-sans leading-relaxed">
@@ -552,7 +571,7 @@ export function CaseFile({ state }: CaseFileProps) {
                     </p>
                   </div>
 
-                  {/* Forensic analysis */}
+                  {/* Rikostekninen analyysi */}
                   <div className="space-y-1.5 bg-zinc-900/80 border border-amber-900/30 p-3.5 rounded-xl">
                     <span className="text-[9px] font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
@@ -563,7 +582,7 @@ export function CaseFile({ state }: CaseFileProps) {
                     </p>
                   </div>
 
-                  {/* Investigative significance */}
+                  {/* Merkitys tutkinnalle */}
                   {selectedClue.investigativeSignificance && (
                     <div className="space-y-1.5 bg-amber-950/30 border border-amber-600/30 p-3.5 rounded-xl">
                       <span className="text-[9px] font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
@@ -576,7 +595,7 @@ export function CaseFile({ state }: CaseFileProps) {
                     </div>
                   )}
 
-                  {/* Connected Clues navigation */}
+                  {/* Vahvistetut tutkintayhteydet */}
                   {selectedClue.connectedClues && selectedClue.connectedClues.length > 0 && (
                     <div className="space-y-2 border-t border-amber-950/60 pt-3">
                       <span className="text-[9px] font-mono font-bold text-amber-400 uppercase tracking-widest block">

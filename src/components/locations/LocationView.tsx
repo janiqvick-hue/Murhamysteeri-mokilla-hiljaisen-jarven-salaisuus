@@ -114,6 +114,10 @@ export function LocationView({ location, state, onBackToMap, onDiscoverClue }: L
     if (obj.id === 'auton_renkaat' || trigger === 'elinan_kengat_auto') {
       return '/images/ui/elinan_kengat_auto.jpg';
     }
+
+    if (trigger === 'elinan_aani_tallenteella') {
+      return '/images/ui/elinan_aani_tallenteella.png';
+    }
     
     const validTriggers = [
       'poltettu_paperi',

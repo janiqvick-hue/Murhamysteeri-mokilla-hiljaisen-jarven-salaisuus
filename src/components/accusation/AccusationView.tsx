@@ -152,7 +152,8 @@ export function AccusationView({ state, onSubmitAccusation }: AccusationViewProp
 
   const handleFinalSubmit = () => {
     setShowConfirmModal(false);
-    audioSynth.playClick();
+    audioSynth.playPaperRustle();
+    audioSynth.playMetalClink();
 
     const rawAccusation: Accusation = {
       suspectId,

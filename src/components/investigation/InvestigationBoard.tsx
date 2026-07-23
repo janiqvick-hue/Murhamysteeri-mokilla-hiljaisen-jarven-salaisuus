@@ -472,6 +472,8 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
 
   // Safe image path resolver
   const getClueImage = (clueId: string): string | null => {
+    const clueObj = CLUES.find(c => c.id === clueId);
+    if (clueObj?.imageUrl) return clueObj.imageUrl;
     const images: Record<string, string> = {
       elinan_aani_tallenteella: '/images/ui/elinan_aani_tallenteella.png',
       kangas_antin_kadessa: '/images/ui/kangas_antin_kadessa.jpg',
@@ -493,6 +495,7 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
       tyhja_laakepakkaus: '/images/ui/tyhja_laakepakkaus.jpg',
       venevajan_lukko: '/images/ui/venevajan_lukko.jpg',
       kuitu_lyhdyssa: '/images/ui/kuitu_lyhdyssa.jpg',
+      kuusenoksa: '/images/ui/kuusenoksa.jpg',
     };
     return images[clueId] || null;
   };
@@ -1725,7 +1728,8 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
                     <img
                       src={getClueImage(activeInspectClue.id) || ''}
                       alt={tText(activeInspectClue.name)}
-                      className="w-full h-full object-cover sepia-[0.12] brightness-[0.9]"
+                      className={`w-full h-full ${activeInspectClue.id === 'elinan_aani_tallenteella' ? 'object-contain p-0.5' : 'object-cover'} sepia-[0.12] brightness-[0.9]`}
+                      referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.02] to-white/[0.1] opacity-90 pointer-events-none mix-blend-overlay" />
                   </div>

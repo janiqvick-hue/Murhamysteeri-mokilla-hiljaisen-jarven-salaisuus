@@ -129,6 +129,21 @@
 }
 
 /* Golden border pulse for main menu buttons */
+.animate-clue-zoom {
+  animation: clue-fade-zoom 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes clue-fade-zoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .button-pulse-effect {
   animation: button-border-pulse 7.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -166,16 +181,60 @@
   }
 }
 
+/* Stamp punch animation for official decision stamps */
+.animate-stamp-in {
+  animation: stamp-in 280ms cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(2) rotate(-15deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(3deg);
+  }
+}
+
+/* Subtle fade-in transition */
+.animate-fade-in {
+  animation: fade-in 220ms ease-out forwards;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Global focus-visible indicator for keyboard accessibility without layout shifts */
+*:focus-visible {
+  outline: 2px solid #f59e0b !important;
+  outline-offset: 2px !important;
+}
+
 /* Support for Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .rain-overlay,
-  .lightning-overlay {
-    animation: none !important;
-    display: none !important;
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+  .rain-overlay,
+  .lightning-overlay,
   .back-fog,
   .front-fog,
-  .button-pulse-effect {
+  .button-pulse-effect,
+  .animate-stamp-in,
+  .animate-fade-in,
+  .animate-clue-zoom {
     animation: none !important;
   }
 }

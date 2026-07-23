@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { GameState, Accusation } from '../../types/game';
 import { ShieldCheck, ShieldAlert, RotateCcw, ArrowRight, Award, FileText, CheckCircle2, AlertOctagon, Stamp, UserCheck } from 'lucide-react';
 import { audioSynth } from '../../hooks/useAudio';
@@ -14,6 +15,14 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
   const { language } = useLanguage();
   const isFi = language === 'fi';
   const isCorrect = state.isAccusationCorrect;
+
+  useEffect(() => {
+    if (isCorrect) {
+      audioSynth.playInvestigationStinger();
+    } else {
+      audioSynth.playMetalClink();
+    }
+  }, [isCorrect]);
 
   const handleRestart = () => {
     audioSynth.playClick();
@@ -67,7 +76,7 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
             </div>
 
             {/* Official Rejection Stamp */}
-            <div className="border-2 border-red-700 text-red-600 font-mono text-[10px] font-extrabold px-3 py-1 rounded-2xs uppercase tracking-widest bg-red-950/50 shadow-sm hidden sm:flex items-center gap-1.5 rotate-3">
+            <div className="border-2 border-red-700 text-red-600 font-mono text-[10px] font-extrabold px-3 py-1 rounded-2xs uppercase tracking-widest bg-red-950/50 shadow-sm hidden sm:flex items-center gap-1.5 rotate-3 animate-stamp-in">
               <Stamp className="w-4 h-4" />
               <span>SYYTE HYLÄTTY</span>
             </div>
@@ -134,7 +143,7 @@ export function Ending({ state, onRestart, onReturnToGame, lastAccusation }: End
         {/* Banner with Official Solved Stamp */}
         <div className="flex flex-col items-center text-center relative border-b border-stone-800 pb-8">
           
-          <div className="absolute top-0 right-0 border-2 border-emerald-500 text-emerald-400 font-mono text-xs font-extrabold px-3.5 py-1.5 rounded-2xs uppercase tracking-widest bg-emerald-950/80 shadow-md hidden sm:flex items-center gap-1.5 rotate-6">
+          <div className="absolute top-0 right-0 border-2 border-emerald-500 text-emerald-400 font-mono text-xs font-extrabold px-3.5 py-1.5 rounded-2xs uppercase tracking-widest bg-emerald-950/80 shadow-md hidden sm:flex items-center gap-1.5 rotate-6 animate-stamp-in">
             <Stamp className="w-4 h-4" />
             <span>TAPAUS RATKAISTU</span>
           </div>

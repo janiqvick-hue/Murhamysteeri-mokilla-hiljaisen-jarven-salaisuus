@@ -272,7 +272,9 @@ export function GameInterface({
 
       {/* 3. Main interactive content area */}
       <main className="flex-1 w-full bg-radial-[circle_at_center] from-zinc-900 to-zinc-950 flex flex-col justify-start relative pb-16 md:pb-0">
-        {renderActiveTabContent()}
+        <div key={activeTab} className="w-full flex-1 flex flex-col animate-fade-in">
+          {renderActiveTabContent()}
+        </div>
       </main>
 
       {/* 4. Footer credits with severe architectural honesty */}

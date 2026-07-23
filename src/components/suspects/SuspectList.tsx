@@ -229,7 +229,7 @@ export function SuspectList({ state, onSelectSuspect }: SuspectListProps) {
   const [selectedSuspectId, setSelectedSuspectId] = useState<string | null>(null);
 
   const handleFolderClick = (suspectId: string) => {
-    audioSynth.playClick();
+    audioSynth.playPaperRustle();
     setSelectedSuspectId(suspectId);
   };
 
@@ -440,7 +440,7 @@ export function SuspectList({ state, onSelectSuspect }: SuspectListProps) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1e1713] p-3.5 rounded-xs border border-stone-800 shadow-md">
               <button
                 onClick={() => {
-                  audioSynth.playClick();
+                  audioSynth.playPaperRustle();
                   setSelectedSuspectId(null);
                 }}
                 className="inline-flex items-center gap-2 px-3.5 py-2 bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs font-mono font-bold rounded-xs transition-all cursor-pointer hover:text-amber-400 group"
