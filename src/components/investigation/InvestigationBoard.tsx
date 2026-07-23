@@ -564,30 +564,34 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
     const clueImage = getClueImage(clue.id);
     const rotationClass = getDeterministicRotation(clue.id);
 
-    // Dynamic Pin color depending on group
     const group = getClueGroup(clue.id);
-    let pinColorClass = 'from-red-400 via-red-600 to-red-800 border-red-700';
-    if (group === 'document') {
-      pinColorClass = 'from-amber-200 via-amber-400 to-amber-700 border-amber-600';
-    } else if (group === 'person') {
-      pinColorClass = 'from-sky-300 via-sky-500 to-sky-800 border-sky-600';
-    }
+
+    // Check if clue is involved in solved contradictions
+    const isConnectedToSolved = CONTRADICTIONS.some(
+      c => state.discoveredContradictions.includes(c.id) &&
+        ((c.itemA.type === 'clue' && c.itemA.id === clue.id) || (c.itemB.type === 'clue' && c.itemB.id === clue.id))
+    );
+
+    // Check if selected in slot A or B
+    const isSelectedInSlot =
+      (selectedItemA?.type === 'clue' && selectedItemA?.id === clue.id) ||
+      (selectedItemB?.type === 'clue' && selectedItemB?.id === clue.id);
 
     if (!isDiscovered) {
       // UNDISCOVERED / SILHOUETTE CARD
       return (
         <div
           key={clue.id}
-          className={`relative border border-dashed border-stone-800/40 bg-stone-950/20 text-stone-600 rounded-lg p-4 min-h-[120px] flex flex-col justify-between items-center text-center select-none ${rotationClass}`}
+          className={`relative border-2 border-dashed border-stone-800/60 bg-stone-950/30 text-stone-600 rounded-lg p-4 min-h-[120px] flex flex-col justify-between items-center text-center select-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.6)] ${rotationClass}`}
         >
-          {/* Subtle Pin Hole representing potential spot */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-black/60 shadow-inner" />
+          {/* Pin hole with indent shadow */}
+          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-black/80 shadow-inner border border-stone-800" />
           
           <div className="mt-4 flex flex-col items-center space-y-1">
-            <div className="p-2 rounded-full border border-stone-900 bg-stone-950 text-stone-700">
+            <div className="p-2.5 rounded-full border border-stone-800 bg-stone-900/80 text-stone-700 shadow-sm">
               <FileText className="w-5 h-5 opacity-40" />
             </div>
-            <p className="text-[10px] font-sans font-semibold tracking-wide text-stone-600 uppercase mt-2">
+            <p className="text-[10px] font-mono font-semibold tracking-wider text-stone-600 uppercase mt-2">
               {t('board.unknownClue')}
             </p>
           </div>
@@ -595,8 +599,14 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
       );
     }
 
-    // DISCOVERED CARD
+    // DISCOVERED CARD VARIANTS
     const isDoc = group === 'document';
+    const isPerson = group === 'person';
+
+    // Pin color logic
+    let pinColor = 'from-red-500 via-red-700 to-red-950 border-red-900';
+    if (isDoc) pinColor = 'from-amber-300 via-amber-500 to-amber-800 border-amber-900';
+    if (isPerson) pinColor = 'from-sky-400 via-sky-600 to-sky-900 border-sky-950';
 
     return (
       <div
@@ -605,69 +615,105 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
           audioSynth.playClick();
           setActiveInspectClue(clue);
         }}
-        className={`group relative ${
-          isDoc 
-            ? 'bg-[#faf6eb] text-[#332211] shadow-[2px_3px_10px_rgba(0,0,0,0.35),_inset_0_0_15px_rgba(139,92,26,0.08)] border border-[#ebd8b7] rounded-sm' 
-            : 'bg-[#fcf9f2] text-stone-900 shadow-[6px_8px_16px_rgba(0,0,0,0.38)] border border-stone-300/50 rounded'
-        } p-3 pb-4 transition-all duration-350 cursor-pointer select-none hover:-translate-y-1.5 hover:rotate-0 hover:shadow-[12px_16px_28px_rgba(0,0,0,0.55)] hover:ring-2 hover:ring-amber-500/30 flex flex-col justify-between ${rotationClass} animate-scale-up`}
-        style={{
-          '--base-rot': getDeterministicRotation(clue.id).includes('-') ? '-1.2deg' : '1.2deg'
-        } as any}
+        className={`group relative transition-all duration-300 cursor-pointer select-none ${rotationClass} animate-scale-up ${
+          isSelectedInSlot
+            ? 'ring-2 ring-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.5)] z-30 scale-[1.02]'
+            : 'hover:-translate-y-2 hover:rotate-0 hover:z-30 hover:scale-[1.02]'
+        } ${
+          isDoc
+            /* Aged Document style */
+            ? 'bg-[#f4ebd0] text-[#2c2217] border border-[#d8c89d] shadow-[3px_6px_16px_rgba(0,0,0,0.5),_inset_0_0_20px_rgba(139,92,26,0.06)] rounded-sm p-3 pb-4'
+            : isPerson
+            /* Sticky Note / Note style */
+            ? 'bg-[#fef08a] text-[#3f2c06] border border-[#facc15]/70 shadow-[4px_7px_18px_rgba(0,0,0,0.5)] rounded-sm p-3 pb-4'
+            /* Polaroid Photo style */
+            : 'bg-[#faf8f4] text-stone-900 border border-stone-300 shadow-[5px_8px_22px_rgba(0,0,0,0.55)] rounded p-3 pb-4'
+        }`}
       >
-        {/* Realistic Pin with offset soft shadow casting bottom-right */}
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-4 h-4 flex items-center justify-center">
-          <div className="absolute top-2.5 left-1.5 w-2.5 h-2.5 bg-black/40 rounded-full blur-[1.5px]" />
+        {/* Top Scotch Tape accent for documents and photos */}
+        {(isDoc || (!isPerson && clueImage)) && (
+          <div className="absolute -top-2 -right-1 w-11 h-4 bg-white/40 border-y border-white/60 backdrop-blur-[1px] rotate-[14deg] shadow-[0_1px_3px_rgba(0,0,0,0.2)] pointer-events-none z-20" />
+        )}
+
+        {/* 3D Pushpin with soft offset directional drop shadow */}
+        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-20 w-4 h-4 flex items-center justify-center pointer-events-none">
+          <div className="absolute top-3 left-2 w-3 h-3 bg-black/50 rounded-full blur-[2px]" />
           <div className="absolute top-1.5 w-[2px] h-3 bg-stone-400" />
-          <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-br border shadow-[1px_2px_4px_rgba(0,0,0,0.6)] flex items-center justify-center relative ${pinColorClass}`}>
-            <div className="w-1 h-1 bg-white/40 rounded-full absolute top-0.5 left-0.5" />
+          <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-br border shadow-[1px_3px_6px_rgba(0,0,0,0.7)] flex items-center justify-center relative ${pinColor}`}>
+            <div className="w-1 h-1 bg-white/60 rounded-full absolute top-0.5 left-0.5" />
           </div>
         </div>
 
-        {/* Polaroid frame style for photos */}
-        <div className="space-y-2 pt-1.5">
+        {/* Red Thread Connection Indicator Badge */}
+        {(isConnectedToSolved || isSelectedInSlot) && (
+          <div className="absolute -top-1 -left-1 z-20 bg-red-800 text-white border border-red-500 text-[8px] font-mono px-1.5 py-0.5 rounded-full shadow-md flex items-center gap-1 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
+            <span>🧵 {isSelectedInSlot ? 'Valittu' : 'Yhdistetty'}</span>
+          </div>
+        )}
+
+        {/* Card Content */}
+        <div className="space-y-2 pt-2">
           {clueImage ? (
-            <div className="w-full aspect-[4/3] bg-stone-950 border border-stone-200/40 rounded overflow-hidden shadow-inner relative group/image">
+            <div className="w-full aspect-[4/3] bg-stone-950 border border-stone-300/60 rounded overflow-hidden shadow-inner relative group/image">
               <img
                 src={clueImage}
                 alt={tText(clue.name)}
-                className="w-full h-full object-cover filter brightness-[0.88] sepia-[0.1] transition-transform duration-500 group-hover/image:scale-105"
+                className="w-full h-full object-cover filter brightness-[0.88] sepia-[0.08] transition-transform duration-500 group-hover/image:scale-105"
                 referrerPolicy="no-referrer"
               />
               {/* Photo paper gloss overlay sheen */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.12] opacity-80 pointer-events-none mix-blend-overlay" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.05] to-white/[0.15] opacity-80 pointer-events-none mix-blend-overlay" />
               <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm p-1 rounded-full text-white/80 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ZoomIn className="w-3.5 h-3.5" />
               </div>
             </div>
+          ) : isDoc ? (
+            /* Document Header Stamp */
+            <div className="w-full bg-[#eee3c2] border border-[#d2c299] p-2 rounded flex items-center justify-between shadow-inner">
+              <div className="flex items-center gap-1.5 text-[#543d2b]">
+                <FileText className="w-4 h-4 text-[#8a6845]" />
+                <span className="text-[9px] font-mono font-bold tracking-widest uppercase">{t('board.documentsGroup')}</span>
+              </div>
+              <span className="text-[8px] font-mono font-bold text-red-800/80 border border-red-800/40 px-1 rounded uppercase tracking-tighter rotate-[-2deg]">
+                TODISTE
+              </span>
+            </div>
           ) : (
-            <div className="w-full aspect-[4/3] bg-stone-900 border border-stone-350 rounded flex flex-col items-center justify-center text-stone-500 shadow-inner p-2">
-              <FileText className="w-6 h-6 opacity-60 text-stone-400" />
-              <span className="text-[8px] font-mono tracking-widest text-stone-400 mt-1 uppercase">NO PHOTO</span>
+            <div className="w-full aspect-[4/3] bg-amber-200/50 border border-amber-300/70 rounded flex flex-col items-center justify-center text-amber-900/60 shadow-inner p-2">
+              <FileText className="w-6 h-6 opacity-60 text-amber-800" />
+              <span className="text-[8px] font-mono tracking-widest text-amber-900/70 mt-1 uppercase">SNO: {clue.id.substring(0, 8)}</span>
             </div>
           )}
 
-          {/* Clue Info */}
+          {/* Clue Details */}
           <div className="space-y-1">
             <div className="flex justify-between items-start gap-1">
-              <h5 className="text-[11px] font-bold font-serif leading-snug tracking-tight group-hover:text-amber-900 transition-colors">
+              <h5 className={`text-[11px] font-bold leading-snug tracking-tight transition-colors ${
+                isDoc ? 'font-serif text-[#2a1e12] group-hover:text-amber-950' : isPerson ? 'font-serif text-[#3f2c06]' : 'font-serif text-stone-900 group-hover:text-amber-900'
+              }`}>
                 {tText(clue.name)}
               </h5>
               
-              <span className="text-[9px] font-mono font-bold shrink-0 border border-red-700/30 text-red-700/70 rounded px-1 rotate-[-3deg] uppercase leading-none scale-90 select-none bg-red-50/10">
+              <span className="text-[9px] font-mono font-bold shrink-0 border border-red-700/40 text-red-800 rounded px-1 rotate-[-3deg] uppercase leading-none scale-90 select-none bg-red-100/30 shadow-2xs">
                 #{discoveryIndex + 1}
               </span>
             </div>
             
-            <p className="text-[9px] font-sans leading-relaxed text-stone-600 line-clamp-2">
+            <p className={`text-[9px] leading-relaxed line-clamp-2 ${
+              isDoc ? 'font-sans text-[#524132]' : isPerson ? 'font-sans text-[#5c4312] italic' : 'font-sans text-stone-600'
+            }`}>
               {tText(clue.description)}
             </p>
           </div>
         </div>
 
         {/* Found metadata Shorthand footer */}
-        <div className="mt-3 pt-2 border-t border-stone-200/60 text-[8px] font-mono text-stone-400 uppercase tracking-widest flex justify-between items-center select-none">
+        <div className={`mt-3 pt-2 border-t text-[8px] font-mono uppercase tracking-widest flex justify-between items-center select-none ${
+          isDoc ? 'border-[#d0c098] text-[#826f55]' : isPerson ? 'border-[#e0c842] text-[#8a7218]' : 'border-stone-200 text-stone-400'
+        }`}>
           <span className="flex items-center gap-0.5">
-            <MapPin className="w-2.5 h-2.5 text-stone-500 shrink-0" />
+            <MapPin className="w-2.5 h-2.5 shrink-0 opacity-70" />
             <span className="truncate max-w-[80px]">{getClueLocationName(clue.locationId)}</span>
           </span>
           <span>{t('board.clueShorthand')}</span>
@@ -758,15 +804,15 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
         {/* TOP STATUS BAR: Styled as the top shelf of the wooden cabinet */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/45 backdrop-blur-md rounded-2xl p-4 border border-white/5 shadow-lg relative overflow-hidden">
           {/* Subtle brass plate nameplate */}
-          <div className="absolute top-0 left-4 w-28 h-1 bg-gradient-to-r from-amber-600 via-amber-400 to-amber-700 rounded-b-md" />
+          <div className="absolute top-0 left-4 w-36 h-1 bg-gradient-to-r from-amber-600 via-amber-400 to-amber-700 rounded-b-md" />
           
           <div className="text-center sm:text-left space-y-1">
-            <h3 className="text-lg md:text-xl font-serif italic font-bold text-stone-100 flex items-center justify-center sm:justify-start gap-2">
-              <Puzzle className="w-5 h-5 text-amber-500 animate-pulse" />
-              {t('board.title')}
+            <h3 className="text-lg md:text-xl font-serif italic font-bold text-amber-200 flex items-center justify-center sm:justify-start gap-2 drop-shadow-sm">
+              <Puzzle className="w-5 h-5 text-amber-400 animate-pulse" />
+              <span>{t('settings.textSizeNormal') === 'Normaali' ? 'Mökkialueen Tutkintataulu' : 'Cottage Area Investigation Board'}</span>
             </h3>
             <p className="text-[11px] font-sans text-stone-400">
-              {t('board.subtitle')}
+              {t('settings.textSizeNormal') === 'Normaali' ? 'Rikostutkinnan päänäkymä • Todisteet, asiakirjat ja ristiriidat' : 'Main investigation board • Evidence, documents, and contradictions'}
             </p>
           </div>
 
@@ -838,65 +884,75 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
         {/* SECTION 1: CORKBOARD (18/20 evidence items neatly categorized) */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-              <span>📌</span> {t('board.corkboardTitle')}
+            <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>📌</span>
+              <span>{t('settings.textSizeNormal') === 'Normaali' ? 'Rikostutkinnan korkkitaulu' : 'Crime Investigation Corkboard'}</span>
             </span>
-            <div className="flex-1 h-[1px] bg-gradient-to-r from-amber-500/25 to-transparent" />
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-amber-500/30 to-transparent" />
           </div>
 
           {/* Large Cinematic Wooden Frame Board with Cork texture */}
           <div className="relative rounded-3xl p-5 md:p-8 bg-[#3d271f] border-[12px] border-[#20120a] shadow-[inset_0_8px_30px_rgba(0,0,0,0.95),_0_20px_45px_rgba(0,0,0,0.85)] overflow-hidden">
             {/* Real Cork Background Texturing */}
-            <div className="absolute inset-0 opacity-[0.15] bg-[radial-gradient(#000000_1px,transparent_1px)] [background-size:6px_6px] pointer-events-none" />
+            <div className="absolute inset-0 opacity-[0.18] bg-[radial-gradient(#000000_1px,transparent_1px)] [background-size:6px_6px] pointer-events-none" />
             <div className="absolute inset-0 opacity-[0.25] bg-[radial-gradient(#ffffff_0.5px,transparent_0.5px)] [background-size:12px_12px] mix-blend-overlay pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-black/15 pointer-events-none" />
             
+            {/* Corner Brass Brackets for frame */}
+            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-amber-500/40 pointer-events-none" />
+            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-amber-500/40 pointer-events-none" />
+            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-amber-500/40 pointer-events-none" />
+            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-amber-500/40 pointer-events-none" />
+
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
               
               {/* COLUMN 1: Fyysiset todisteet */}
               <div className="space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                  <span className="bg-[#f0e4cf] text-[#442b1f] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded border border-[#cb9b7d] shadow-[1px_2px_4px_rgba(0,0,0,0.3)] rotate-[-1deg] select-none">
-                    📍 {t('board.physicalEvidenceGroup')}
+                <div className="flex justify-between items-center pb-2 border-b border-white/10">
+                  <span className="bg-[#f0e4cf] text-[#442b1f] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded border border-[#cb9b7d] shadow-[1px_2px_4px_rgba(0,0,0,0.3)] rotate-[-1deg] select-none flex items-center gap-1">
+                    <span>📍</span>
+                    <span>{t('settings.textSizeNormal') === 'Normaali' ? 'Fyysiset todisteet' : 'Physical Evidence'}</span>
                   </span>
-                  <span className="text-[10px] font-mono text-stone-400/80">
+                  <span className="text-[10px] font-mono text-stone-300/80 bg-black/40 px-2 py-0.5 rounded border border-white/5">
                     {physicalClues.filter(c => state.discoveredClues.includes(c.id)).length} / {physicalClues.length}
                   </span>
                 </div>
                 
-                <div className="flex flex-col gap-4 max-h-[460px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
                   {physicalClues.map(c => renderClueCard(c))}
                 </div>
               </div>
 
               {/* COLUMN 2: Asiakirjat */}
               <div className="space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                  <span className="bg-[#f0e4cf] text-[#442b1f] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded border border-[#cb9b7d] shadow-[1px_2px_4px_rgba(0,0,0,0.3)] rotate-[0.5deg] select-none">
-                    📍 {t('board.documentsGroup')}
+                <div className="flex justify-between items-center pb-2 border-b border-white/10">
+                  <span className="bg-[#f0e4cf] text-[#442b1f] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded border border-[#cb9b7d] shadow-[1px_2px_4px_rgba(0,0,0,0.3)] rotate-[0.5deg] select-none flex items-center gap-1">
+                    <span>📍</span>
+                    <span>{t('settings.textSizeNormal') === 'Normaali' ? 'Asiakirjat' : 'Documents'}</span>
                   </span>
-                  <span className="text-[10px] font-mono text-stone-400/80">
+                  <span className="text-[10px] font-mono text-stone-300/80 bg-black/40 px-2 py-0.5 rounded border border-white/5">
                     {documentClues.filter(c => state.discoveredClues.includes(c.id)).length} / {documentClues.length}
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-4 max-h-[460px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
                   {documentClues.map(c => renderClueCard(c))}
                 </div>
               </div>
 
-              {/* COLUMN 3: Henkilöihin liittyvät */}
+              {/* COLUMN 3: Henkilöihin liittyvät todisteet */}
               <div className="space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                  <span className="bg-[#f0e4cf] text-[#442b1f] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded border border-[#cb9b7d] shadow-[1px_2px_4px_rgba(0,0,0,0.3)] rotate-[-0.5deg] select-none">
-                    📍 {t('board.personRelatedGroup')}
+                <div className="flex justify-between items-center pb-2 border-b border-white/10">
+                  <span className="bg-[#f0e4cf] text-[#442b1f] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded border border-[#cb9b7d] shadow-[1px_2px_4px_rgba(0,0,0,0.3)] rotate-[-0.5deg] select-none flex items-center gap-1">
+                    <span>📍</span>
+                    <span>{t('settings.textSizeNormal') === 'Normaali' ? 'Henkilöihin liittyvät todisteet' : 'Person-Related Evidence'}</span>
                   </span>
-                  <span className="text-[10px] font-mono text-stone-400/80">
+                  <span className="text-[10px] font-mono text-stone-300/80 bg-black/40 px-2 py-0.5 rounded border border-white/5">
                     {personClues.filter(c => state.discoveredClues.includes(c.id)).length} / {personClues.length}
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-4 max-h-[460px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
                   {personClues.map(c => renderClueCard(c))}
                 </div>
               </div>
