@@ -313,6 +313,80 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
   const [selectedClue2, setSelectedClue2] = useState<string>('');
   const [alibiFeedback, setAlibiFeedback] = useState<{ message: string; success: boolean } | null>(null);
 
+  // Lower Corkboard thread connections state and refs
+  const [hoveredCorkboardClueId, setHoveredCorkboardClueId] = useState<string | null>(null);
+  const [corkboardPinPositions, setCorkboardPinPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const corkboardRef = useRef<HTMLDivElement | null>(null);
+  const pinRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const updatePinPositions = () => {
+    if (!corkboardRef.current) return;
+    const boardRect = corkboardRef.current.getBoundingClientRect();
+    const positions: Record<string, { x: number; y: number }> = {};
+    Object.entries(pinRefs.current).forEach(([id, el]) => {
+      if (el) {
+        const rect = (el as HTMLDivElement).getBoundingClientRect();
+        positions[id] = {
+          x: rect.left + rect.width / 2 - boardRect.left,
+          y: rect.top + rect.height / 2 - boardRect.top,
+        };
+      }
+    });
+
+    setCorkboardPinPositions(prev => {
+      const keys = Object.keys(positions);
+      const prevKeys = Object.keys(prev);
+      if (keys.length !== prevKeys.length) return positions;
+      const isSame = keys.every(
+        k => prev[k] && Math.abs(prev[k].x - positions[k].x) < 1 && Math.abs(prev[k].y - positions[k].y) < 1
+      );
+      return isSame ? prev : positions;
+    });
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(updatePinPositions, 150);
+    window.addEventListener('resize', updatePinPositions);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updatePinPositions);
+    };
+  }, [state.discoveredClues.length, hoveredCorkboardClueId]);
+
+  const getSuspectForClue = (clueId: string) => {
+    switch (clueId) {
+      case 'elinan_aani_tallenteella':
+      case 'elinan_kengat':
+      case 'repeytynyt_hiha':
+      case 'tilisiirto_elinalle':
+      case 'auton_avaimet':
+        return { id: 'elina', name: 'Elina Koskinen', role: 'Antin liikekumppani', color: 'bg-red-950/20 text-red-800 border-red-700/40' };
+
+      case 'markuksen_saunavaatteet':
+        return { id: 'markus', name: 'Markus Salo', role: 'Opiskelukaveri', color: 'bg-amber-950/20 text-amber-900 border-amber-700/40' };
+
+      case 'oskarin_taskulamppu':
+      case 'venevajan_lukko':
+        return { id: 'oskari', name: 'Oskari Mäkelä', role: 'Mökin omistaja', color: 'bg-stone-900/20 text-stone-800 border-stone-700/40' };
+
+      case 'tekstiviesti_lauralle':
+        return { id: 'laura', name: 'Laura Niemi', role: 'Antin ex-vaimo', color: 'bg-purple-950/20 text-purple-900 border-purple-700/40' };
+
+      case 'saran_tallennin':
+        return { id: 'sara', name: 'Sara Virtanen', role: 'Taloustoimittaja', color: 'bg-emerald-950/20 text-emerald-900 border-emerald-700/40' };
+
+      case 'antin_puhelin':
+      case 'kirjanpitopaperit':
+      case 'kangas_antin_kadessa':
+      case 'tyhja_laakepakkaus':
+      case 'keittion_kello':
+        return { id: 'antti', name: 'Antti Lehtonen', role: 'Uhri', color: 'bg-blue-950/20 text-blue-900 border-blue-700/40' };
+
+      default:
+        return null;
+    }
+  };
+
   const unlockedDeductions = DEDUCTIONS.filter(d => isPhaseUnlocked(d.unlockPhase, state.currentPhase));
 
   const [selectedDeductionId, setSelectedDeductionId] = useState<string>(() => {
@@ -565,6 +639,7 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
     const rotationClass = getDeterministicRotation(clue.id);
 
     const group = getClueGroup(clue.id);
+    const suspectInfo = getSuspectForClue(clue.id);
 
     // Check if clue is involved in solved contradictions
     const isConnectedToSolved = CONTRADICTIONS.some(
@@ -577,6 +652,8 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
       (selectedItemA?.type === 'clue' && selectedItemA?.id === clue.id) ||
       (selectedItemB?.type === 'clue' && selectedItemB?.id === clue.id);
 
+    const isHovered = hoveredCorkboardClueId === clue.id;
+
     if (!isDiscovered) {
       // UNDISCOVERED / SILHOUETTE CARD
       return (
@@ -585,7 +662,10 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
           className={`relative border-2 border-dashed border-stone-800/60 bg-stone-950/30 text-stone-600 rounded-lg p-4 min-h-[120px] flex flex-col justify-between items-center text-center select-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.6)] ${rotationClass}`}
         >
           {/* Pin hole with indent shadow */}
-          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-black/80 shadow-inner border border-stone-800" />
+          <div 
+            ref={el => { pinRefs.current[clue.id] = el; }}
+            className="absolute top-2.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-black/80 shadow-inner border border-stone-800" 
+          />
           
           <div className="mt-4 flex flex-col items-center space-y-1">
             <div className="p-2.5 rounded-full border border-stone-800 bg-stone-900/80 text-stone-700 shadow-sm">
@@ -615,28 +695,51 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
           audioSynth.playClick();
           setActiveInspectClue(clue);
         }}
+        onMouseEnter={() => setHoveredCorkboardClueId(clue.id)}
+        onMouseLeave={() => setHoveredCorkboardClueId(null)}
         className={`group relative transition-all duration-300 cursor-pointer select-none ${rotationClass} animate-scale-up ${
           isSelectedInSlot
-            ? 'ring-2 ring-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.5)] z-30 scale-[1.02]'
-            : 'hover:-translate-y-2 hover:rotate-0 hover:z-30 hover:scale-[1.02]'
+            ? 'ring-2 ring-amber-400 shadow-[0_0_22px_rgba(245,158,11,0.6)] z-30 scale-[1.02]'
+            : isHovered
+            ? 'ring-2 ring-red-500 shadow-[0_0_24px_rgba(239,68,68,0.6)] z-30 -translate-y-2 rotate-0 scale-[1.02]'
+            : 'hover:-translate-y-2 hover:rotate-0 hover:z-30 hover:shadow-[0_12px_28px_rgba(0,0,0,0.7)] hover:scale-[1.02]'
         } ${
           isDoc
             /* Aged Document style */
-            ? 'bg-[#f4ebd0] text-[#2c2217] border border-[#d8c89d] shadow-[3px_6px_16px_rgba(0,0,0,0.5),_inset_0_0_20px_rgba(139,92,26,0.06)] rounded-sm p-3 pb-4'
+            ? 'bg-[#f4ebd0] text-[#2c2217] border border-[#d8c89d] shadow-[3px_6px_16px_rgba(0,0,0,0.5),_inset_0_0_20px_rgba(139,92,26,0.06)] rounded-xs p-3 pb-4'
             : isPerson
-            /* Sticky Note / Note style */
-            ? 'bg-[#fef08a] text-[#3f2c06] border border-[#facc15]/70 shadow-[4px_7px_18px_rgba(0,0,0,0.5)] rounded-sm p-3 pb-4'
+            /* Suspect dossier / Yellow note style */
+            ? 'bg-[#fffbeb] text-[#3f2c06] border border-[#fde047]/80 shadow-[4px_7px_18px_rgba(0,0,0,0.5)] rounded-xs p-3 pb-4'
             /* Polaroid Photo style */
-            : 'bg-[#faf8f4] text-stone-900 border border-stone-300 shadow-[5px_8px_22px_rgba(0,0,0,0.55)] rounded p-3 pb-4'
+            : 'bg-[#faf8f4] text-stone-900 border border-stone-300 shadow-[5px_8px_22px_rgba(0,0,0,0.55)] rounded-xs p-3 pb-4'
         }`}
       >
+        {/* Paper clip for Documents */}
+        {isDoc && (
+          <div className="absolute -top-3 left-3 z-20 pointer-events-none drop-shadow-md">
+            <svg className="w-5 h-8 text-stone-500" viewBox="0 0 24 36" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M8 8v16a4 4 0 008 0V6a3 3 0 00-6 0v16a1 1 0 002 0V10" />
+            </svg>
+          </div>
+        )}
+
         {/* Top Scotch Tape accent for documents and photos */}
         {(isDoc || (!isPerson && clueImage)) && (
           <div className="absolute -top-2 -right-1 w-11 h-4 bg-white/40 border-y border-white/60 backdrop-blur-[1px] rotate-[14deg] shadow-[0_1px_3px_rgba(0,0,0,0.2)] pointer-events-none z-20" />
         )}
 
+        {/* Official Rubber Stamp for Documents */}
+        {isDoc && (
+          <div className="absolute top-2 right-2 border-2 border-red-800/70 text-red-800/90 font-mono text-[8px] font-extrabold tracking-widest px-1.5 py-0.5 rounded rotate-[-7deg] uppercase opacity-85 select-none pointer-events-none bg-red-100/20 shadow-2xs">
+            POLIISI • TUTKINTAMATERIAALI
+          </div>
+        )}
+
         {/* 3D Pushpin with soft offset directional drop shadow */}
-        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-20 w-4 h-4 flex items-center justify-center pointer-events-none">
+        <div 
+          ref={el => { pinRefs.current[clue.id] = el; }}
+          className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-20 w-4 h-4 flex items-center justify-center pointer-events-none"
+        >
           <div className="absolute top-3 left-2 w-3 h-3 bg-black/50 rounded-full blur-[2px]" />
           <div className="absolute top-1.5 w-[2px] h-3 bg-stone-400" />
           <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-br border shadow-[1px_3px_6px_rgba(0,0,0,0.7)] flex items-center justify-center relative ${pinColor}`}>
@@ -645,15 +748,28 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
         </div>
 
         {/* Red Thread Connection Indicator Badge */}
-        {(isConnectedToSolved || isSelectedInSlot) && (
-          <div className="absolute -top-1 -left-1 z-20 bg-red-800 text-white border border-red-500 text-[8px] font-mono px-1.5 py-0.5 rounded-full shadow-md flex items-center gap-1 animate-pulse">
+        {(isConnectedToSolved || isSelectedInSlot || isHovered) && (
+          <div className={`absolute -top-1 -left-1 z-20 text-white border text-[8px] font-mono px-1.5 py-0.5 rounded-full shadow-md flex items-center gap-1 transition-colors ${
+            isHovered ? 'bg-red-600 border-red-400 animate-pulse' : 'bg-red-800 border-red-500'
+          }`}>
             <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
-            <span>🧵 {isSelectedInSlot ? 'Valittu' : 'Yhdistetty'}</span>
+            <span>🧵 {isSelectedInSlot ? 'Valittu' : isHovered ? 'Aktiivinen lanka' : 'Yhdistetty'}</span>
+          </div>
+        )}
+
+        {/* Suspect Tag Banner for Person-Related Clues */}
+        {isPerson && suspectInfo && (
+          <div className={`mb-2.5 px-2 py-1 rounded border text-[9px] font-mono font-bold flex items-center justify-between ${suspectInfo.color} shadow-2xs`}>
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+              <span>HENKILÖ: {suspectInfo.name.toUpperCase()}</span>
+            </span>
+            <span className="text-[8px] opacity-75 font-serif italic">{suspectInfo.role}</span>
           </div>
         )}
 
         {/* Card Content */}
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-1.5">
           {clueImage ? (
             <div className="w-full aspect-[4/3] bg-stone-950 border border-stone-300/60 rounded overflow-hidden shadow-inner relative group/image">
               <img
@@ -664,6 +780,17 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
               />
               {/* Photo paper gloss overlay sheen */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.05] to-white/[0.15] opacity-80 pointer-events-none mix-blend-overlay" />
+              
+              {/* Photo Caption Label */}
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-1.5 pt-4 flex justify-between items-end">
+                <span className="text-[9px] font-serif italic text-amber-200/90 tracking-tight drop-shadow-sm">
+                  {getClueLocationName(clue.locationId)}
+                </span>
+                <span className="text-[8px] font-mono text-stone-300 uppercase tracking-widest bg-black/60 px-1 rounded">
+                  #{discoveryIndex + 1}
+                </span>
+              </div>
+
               <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm p-1 rounded-full text-white/80 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ZoomIn className="w-3.5 h-3.5" />
               </div>
@@ -695,9 +822,11 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
                 {tText(clue.name)}
               </h5>
               
-              <span className="text-[9px] font-mono font-bold shrink-0 border border-red-700/40 text-red-800 rounded px-1 rotate-[-3deg] uppercase leading-none scale-90 select-none bg-red-100/30 shadow-2xs">
-                #{discoveryIndex + 1}
-              </span>
+              {!clueImage && (
+                <span className="text-[9px] font-mono font-bold shrink-0 border border-red-700/40 text-red-800 rounded px-1 rotate-[-3deg] uppercase leading-none scale-90 select-none bg-red-100/30 shadow-2xs">
+                  #{discoveryIndex + 1}
+                </span>
+              )}
             </div>
             
             <p className={`text-[9px] leading-relaxed line-clamp-2 ${
@@ -892,12 +1021,107 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
           </div>
 
           {/* Large Cinematic Wooden Frame Board with Cork texture */}
-          <div className="relative rounded-3xl p-5 md:p-8 bg-[#3d271f] border-[12px] border-[#20120a] shadow-[inset_0_8px_30px_rgba(0,0,0,0.95),_0_20px_45px_rgba(0,0,0,0.85)] overflow-hidden">
+          <div 
+            ref={corkboardRef} 
+            className="relative rounded-3xl p-5 md:p-8 bg-[#3d271f] border-[12px] border-[#20120a] shadow-[inset_0_8px_30px_rgba(0,0,0,0.95),_0_20px_45px_rgba(0,0,0,0.85)] overflow-hidden"
+          >
             {/* Real Cork Background Texturing */}
             <div className="absolute inset-0 opacity-[0.18] bg-[radial-gradient(#000000_1px,transparent_1px)] [background-size:6px_6px] pointer-events-none" />
             <div className="absolute inset-0 opacity-[0.25] bg-[radial-gradient(#ffffff_0.5px,transparent_0.5px)] [background-size:12px_12px] mix-blend-overlay pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-black/15 pointer-events-none" />
             
+            {/* SVG Interactive Red Investigation Thread Connections Layer */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible">
+              {(() => {
+                const threads: { id: string; clueAId: string; clueBId: string; x1: number; y1: number; x2: number; y2: number; isSolved: boolean }[] = [];
+
+                // 1. Contradictions defined in storyData
+                CONTRADICTIONS.forEach(c => {
+                  let idA: string | null = c.itemA.type === 'clue' ? c.itemA.id : null;
+                  let idB: string | null = c.itemB.type === 'clue' ? c.itemB.id : null;
+
+                  if (c.itemA.type === 'alibi') {
+                    if (c.itemA.id === 'elina') idA = 'auton_avaimet';
+                    if (c.itemA.id === 'markus') idA = 'markuksen_saunavaatteet';
+                    if (c.itemA.id === 'oskari') idA = 'oskarin_taskulamppu';
+                  }
+                  if (c.itemB.type === 'alibi') {
+                    if (c.itemB.id === 'elina') idB = 'auton_avaimet';
+                    if (c.itemB.id === 'markus') idB = 'markuksen_saunavaatteet';
+                    if (c.itemB.id === 'oskari') idB = 'oskarin_taskulamppu';
+                  }
+
+                  if (idA && idB && corkboardPinPositions[idA] && corkboardPinPositions[idB] && state.discoveredClues.includes(idA) && state.discoveredClues.includes(idB)) {
+                    threads.push({
+                      id: c.id,
+                      clueAId: idA,
+                      clueBId: idB,
+                      x1: corkboardPinPositions[idA].x,
+                      y1: corkboardPinPositions[idA].y,
+                      x2: corkboardPinPositions[idB].x,
+                      y2: corkboardPinPositions[idB].y,
+                      isSolved: state.discoveredContradictions.includes(c.id)
+                    });
+                  }
+                });
+
+                // 2. Implicit narrative pairs
+                const implicitPairs = [
+                  { id: 'pair_kirjanpito_tilisiirto', a: 'kirjanpitopaperit', b: 'tilisiirto_elinalle' },
+                  { id: 'pair_puhelin_viesti', a: 'antin_puhelin', b: 'tekstiviesti_lauralle' },
+                  { id: 'pair_lyhty_kuitu', a: 'rikkinainen_lyhty', b: 'kuitu_lyhdyssa' }
+                ];
+
+                implicitPairs.forEach(p => {
+                  if (corkboardPinPositions[p.a] && corkboardPinPositions[p.b] && state.discoveredClues.includes(p.a) && state.discoveredClues.includes(p.b)) {
+                    if (!threads.some(t => (t.clueAId === p.a && t.clueBId === p.b) || (t.clueAId === p.b && t.clueBId === p.a))) {
+                      threads.push({
+                        id: p.id,
+                        clueAId: p.a,
+                        clueBId: p.b,
+                        x1: corkboardPinPositions[p.a].x,
+                        y1: corkboardPinPositions[p.a].y,
+                        x2: corkboardPinPositions[p.b].x,
+                        y2: corkboardPinPositions[p.b].y,
+                        isSolved: true
+                      });
+                    }
+                  }
+                });
+
+                return threads.map(t => {
+                  const isHovered = hoveredCorkboardClueId && (t.clueAId === hoveredCorkboardClueId || t.clueBId === hoveredCorkboardClueId);
+                  return (
+                    <g key={t.id}>
+                      {/* Drop shadow for 3D string depth */}
+                      <line
+                        x1={t.x1}
+                        y1={t.y1 + 2}
+                        x2={t.x2}
+                        y2={t.y2 + 2}
+                        stroke="rgba(0,0,0,0.65)"
+                        strokeWidth={isHovered ? 3.5 : 2}
+                      />
+                      {/* String line */}
+                      <line
+                        x1={t.x1}
+                        y1={t.y1}
+                        x2={t.x2}
+                        y2={t.y2}
+                        stroke={isHovered ? "#ff2222" : t.isSolved ? "#ef4444" : "#991b1b"}
+                        strokeWidth={isHovered ? 2.5 : 1.8}
+                        strokeDasharray={isHovered ? "none" : "6 3"}
+                        style={isHovered ? { filter: "drop-shadow(0 0 6px rgba(255, 34, 34, 0.9))" } : {}}
+                      />
+                      {/* End nodes on pins */}
+                      <circle cx={t.x1} cy={t.y1} r={isHovered ? 4 : 2.5} fill={isHovered ? "#ff2222" : "#ef4444"} />
+                      <circle cx={t.x2} cy={t.y2} r={isHovered ? 4 : 2.5} fill={isHovered ? "#ff2222" : "#ef4444"} />
+                    </g>
+                  );
+                });
+              })()}
+            </svg>
+
             {/* Corner Brass Brackets for frame */}
             <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-amber-500/40 pointer-events-none" />
             <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-amber-500/40 pointer-events-none" />
@@ -918,7 +1142,10 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
                   </span>
                 </div>
                 
-                <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
+                <div 
+                  className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1"
+                  onScroll={updatePinPositions}
+                >
                   {physicalClues.map(c => renderClueCard(c))}
                 </div>
               </div>
@@ -935,7 +1162,10 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
+                <div 
+                  className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1"
+                  onScroll={updatePinPositions}
+                >
                   {documentClues.map(c => renderClueCard(c))}
                 </div>
               </div>
@@ -952,7 +1182,10 @@ export function InvestigationBoard({ state, onDiscoverContradiction, solveContra
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
+                <div 
+                  className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1"
+                  onScroll={updatePinPositions}
+                >
                   {personClues.map(c => renderClueCard(c))}
                 </div>
               </div>
